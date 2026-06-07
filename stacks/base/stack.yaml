@@ -1,0 +1,11 @@
+apiVersion: addons.productive-k3s.io/v1
+kind: Stack
+metadata:
+  name: base
+  version: 0.1.0
+spec:
+  addons:
+    - cert-manager
+    - longhorn
+    - rancher
+    - registry

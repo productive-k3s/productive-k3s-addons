@@ -1,2 +1,6 @@
 docs/superpowers/
 superpowers/
+.tmp/
+.venv/
+site/
+__pycache__/

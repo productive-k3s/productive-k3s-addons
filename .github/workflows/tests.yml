@@ -1,0 +1,20 @@
+name: tests
+
+on:
+  push:
+    branches:
+      - development
+      - main
+  pull_request:
+
+jobs:
+  content-validation:
+    runs-on: ubuntu-24.04
+    env:
+      CORE_VERSION: development
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Run static and contract validation
+        run: make test-matrix

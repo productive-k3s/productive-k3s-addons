@@ -2,17 +2,43 @@
 
 > Work in progress.
 
-`productive-k3s-addons` is part of the Productive K3S ecosystem.
+`productive-k3s-addons` is the public Kubernetes content repository for the Productive K3S ecosystem.
 
-This repository provides a space for optional, experimental, community-oriented, or non-core addons that can be used on top of a Productive K3S installation.
+It is intentionally separate from `productive-k3s-core`:
 
-The goal is to keep `productive-k3s-core` focused and stable, while allowing the ecosystem to grow with additional integrations, examples, charts, and reusable components.
+- `productive-k3s-core` is the package execution engine.
+- `productive-k3s-addons` contains source content.
+- `productive-k3s-addons-pro` mirrors the same structure for private or commercial content.
+
+This repository now carries two different kinds of content:
+
+- `addons/`: individually deployable capabilities
+- `stacks/`: opinionated collections of add-ons
+
+Core must remain valid without any predefined stack. This repository is where stack intent and add-on source packages live.
+
+## Public exposure boundary
+
+`productive-k3s-core` now supports one narrow, generic public exposure contract for add-ons:
+
+- one explicit host
+- one Traefik ingress
+- one target service and port declared by the add-on metadata
+
+That basic contract exists so `pk3s` and Core can expose simple add-ons with a stable UX such as:
+
+```bash
+pk3s addon install nginx --profile multipass-1-server-2-agents --public-host nginx-01.k3s.lab.internal
+```
+
+Everything beyond that remains an add-on responsibility. If an add-on needs custom paths, custom TLS resources, multiple hosts, auth middlewares, or arbitrary ingress annotations, the add-on should implement that logic itself instead of expanding Core's generic surface.
 
 ## Repository structure
 
 ```text
 productive-k3s-addons/
 ├── addons/
+├── stacks/
 ├── examples/
 ├── charts/
 ├── scripts/
@@ -24,20 +50,37 @@ productive-k3s-addons/
 
 ### `addons/`
 
-Contains individual addon definitions.
+Contains individual add-on source packages such as `nginx`.
 
-An addon is an optional component that can be installed on top of a Productive K3S cluster, but is not considered part of the core runtime.
+Each add-on is versioned, source-oriented, and intended to be packaged into `addon.tgz` by `productive-k3s-ops`. `productive-k3s-core` validates and installs the packaged artifact.
 
-Addons may include:
+The current source contract is minimal:
 
-- Helm values
-- Kubernetes manifests
-- install scripts
-- configuration examples
-- documentation
-- references to external charts or tools
+```text
+addon.yaml
+scripts/install.sh
+```
 
-Addons in this repository should be considered optional and may have different levels of maturity.
+Additional files such as `values.yaml`, `README.md`, `charts/`, or `assets/` are optional.
+
+### `stacks/`
+
+Contains opinionated collections of add-ons.
+
+A stack is not the same thing as an add-on. A stack references multiple add-ons and exists to express a higher-level operational platform shape.
+
+The current source contract is minimal:
+
+```text
+stack.yaml
+```
+
+The first stack exported from this repository is `stacks/base`, which declaratively captures the current Productive K3S base stack intent:
+
+- `cert-manager`
+- `longhorn`
+- `rancher`
+- `registry`
 
 ---
 
@@ -87,23 +130,30 @@ This can include:
 
 ### `tests/`
 
-Contains tests for validating addons and examples.
+Contains repository-level validation and cross-testing entrypoints.
 
-Tests may include:
+Current workflow:
 
-- smoke tests
-- linting
-- Helm template validation
-- Kubernetes manifest validation
-- installation checks against test clusters
+- `make test-static`: validate local repository layout for a selected add-on or stack
+- `make test-contract`: validate selected source content against a chosen `productive-k3s-core` version
+- `make test-live`: manual package-first install path for a selected add-on
+- `make test-matrix`: run `static + contract` across all discovered add-ons and stacks
+
+Cross-testing follows the same pattern used by `productive-k3s-profiles`:
+
+- if `PRODUCTIVE_K3S_CORE_REPO_DIR` is set, the runner uses that local checkout
+- otherwise it clones `productive-k3s-core`
+- if `CORE_VERSION` is omitted, the latest published `productive-k3s-core` release is used
+
+During coordinated development of new stack contracts, prefer `CORE_VERSION=development` or `PRODUCTIVE_K3S_CORE_REPO_DIR=/path/to/productive-k3s-core` until the required Core support is released.
 
 ## Relationship with other repositories
 
 ### `productive-k3s-core`
 
-Provides the core runtime, installation logic, supported base addons, and cluster lifecycle.
+Provides the package runtime, installation logic, validation, and cluster lifecycle.
 
-This repository should not depend on `productive-k3s-addons`.
+This repository should not depend on `productive-k3s-addons` as source content.
 
 ### `productive-k3s-infra`
 
@@ -119,9 +169,9 @@ In the future, it may expose commands to discover or install addons.
 
 ## Status
 
-This repository is currently a work in progress.
+This repository is in active migration.
 
-APIs, folder structure, conventions, and addon maturity levels may change.
+The `base` stack intent now lives here, but the full runtime extraction from `productive-k3s-core` is still incremental. Until that migration completes, some stack behavior remains embedded in Core even though the declarative source of truth is being moved here.
 
 ## License
 
