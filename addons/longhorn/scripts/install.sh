@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "${SCRIPT_DIR}/../../../scripts/addon-host-runtime.sh"
+
 KUBECTL_BIN="${PK3S_KUBECTL_BIN:-kubectl}"
 HELM_BIN="${PK3S_HELM_BIN:-helm}"
 KUBECTL_MODE="${PK3S_KUBECTL_MODE:-kubectl}"
@@ -20,6 +23,12 @@ kctl() {
 }
 
 pk3s_addon_install() {
+  pk3s_ensure_packages_optional "Longhorn" open-iscsi jq
+  pk3s_enable_service_optional iscsid
+  pk3s_runtime_warn "Longhorn storage path '${LONGHORN_DATA_PATH}' will be created if missing."
+  pk3s_runtime_warn "This add-on will not format or mount disks. Prepare dedicated mounted storage yourself if you need it."
+  pk3s_ensure_directory_optional "${LONGHORN_DATA_PATH}"
+
   kctl create namespace longhorn-system >/dev/null 2>&1 || true
   "${HELM_BIN}" repo add longhorn https://charts.longhorn.io >/dev/null 2>&1 || true
   "${HELM_BIN}" repo update >/dev/null

@@ -6,6 +6,12 @@ metadata:
   category: platform
 spec:
   type: helm
+  impact:
+    cluster: true
+    host: true
+    summary: "Installs Rancher and can optionally configure a local /etc/hosts entry for the selected hostname."
+    hostCapabilities:
+      - etc-hosts
   configure:
     script: scripts/configure.sh
   install:

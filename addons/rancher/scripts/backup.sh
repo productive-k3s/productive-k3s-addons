@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "${SCRIPT_DIR}/../../../scripts/addon-host-runtime.sh"
+
 pk3s_addon_backup() {
   local output_dir="$1"
 
@@ -10,6 +13,14 @@ pk3s_addon_backup() {
     safe_write_cmd "$output_dir/namespaces/cattle-system-ingress.yaml" k get ingress -n cattle-system -o yaml
     safe_write_cmd "$output_dir/namespaces/cattle-system-secrets.yaml" k get secret -n cattle-system -o yaml
     safe_write_cmd "$output_dir/namespaces/cattle-system-configmaps.yaml" k get configmap -n cattle-system -o yaml
+  fi
+
+  local rancher_host="${PK3S_RANCHER_HOST:-}"
+  if [[ -z "${rancher_host}" ]]; then
+    rancher_host="$(k get ingress rancher -n cattle-system -o jsonpath='{.spec.rules[0].host}' 2>/dev/null || true)"
+  fi
+  if [[ -n "${rancher_host}" ]]; then
+    grep -E "[[:space:]]${rancher_host}$" /etc/hosts > "${output_dir}/host-rancher-hosts.txt" 2>/dev/null || true
   fi
 }
 

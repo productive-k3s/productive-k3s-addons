@@ -6,15 +6,27 @@ Minimum required files:
 
 ```text
 addon.yaml
+scripts/configure.sh
 scripts/install.sh
+scripts/validate.sh
+scripts/clean.sh
+scripts/backup.sh
 ```
 
 Suggested additional files:
 
 - `README.md`
 - `values.yaml`
-- `charts/`
 - `assets/`
+
+Minimum required metadata in `addon.yaml` includes:
+
+- `spec.type`
+- `spec.impact.cluster`
+- `spec.impact.host`
+- `spec.impact.summary`
+
+If `spec.impact.host: true`, the add-on must also declare one or more `spec.impact.hostCapabilities` entries so `productive-k3s-core` can warn operators before host-local changes.
 
 Add-ons are intentionally independent from stacks. A stack may reference an add-on, but it does not replace the add-on package itself.
 

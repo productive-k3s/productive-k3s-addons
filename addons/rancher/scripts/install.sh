@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "${SCRIPT_DIR}/../../../scripts/addon-host-runtime.sh"
+
 KUBECTL_BIN="${PK3S_KUBECTL_BIN:-kubectl}"
 HELM_BIN="${PK3S_HELM_BIN:-helm}"
 KUBECTL_MODE="${PK3S_KUBECTL_MODE:-kubectl}"
@@ -12,6 +15,8 @@ CLUSTER_ISSUER="${PK3S_CLUSTER_ISSUER:-selfsigned-issuer}"
 LE_EMAIL="${PK3S_LETSENCRYPT_EMAIL:-admin@example.invalid}"
 LE_ENVIRONMENT="${PK3S_LETSENCRYPT_ENVIRONMENT:-staging}"
 PRIVATE_CA="${PK3S_RANCHER_PRIVATE_CA:-true}"
+NODE_PRIMARY_IP="${PK3S_NODE_PRIMARY_IP:-}"
+MANAGE_LOCAL_HOSTS="${PK3S_RANCHER_MANAGE_LOCAL_HOSTS:-n}"
 
 kctl() {
   if [[ "${KUBECTL_MODE}" == "k3s" ]]; then
@@ -101,6 +106,12 @@ EOF
   fi
 
   kctl -n cattle-system rollout status deployment/rancher --timeout=10m || true
+
+  if [[ "${MANAGE_LOCAL_HOSTS}" == "y" && -n "${NODE_PRIMARY_IP}" ]]; then
+    pk3s_replace_local_hosts_entry "${RANCHER_HOST}" "${NODE_PRIMARY_IP}" "rancher_host_local"
+  else
+    pk3s_manifest_complete_optional "rancher_host_local" "skipped"
+  fi
 }
 
 if [[ "${BASH_SOURCE[0]}" == "$0" ]]; then

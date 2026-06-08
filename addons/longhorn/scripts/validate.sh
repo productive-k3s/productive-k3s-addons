@@ -1,10 +1,25 @@
 #!/usr/bin/env bash
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "${SCRIPT_DIR}/../../../scripts/addon-host-runtime.sh"
+
 pk3s_addon_validate() {
   info "Checking Longhorn"
   if ! k get namespace longhorn-system >/dev/null 2>&1; then
     info "Longhorn is not installed; skipping Longhorn-specific checks"
     return
+  fi
+
+  if pk3s_service_active_optional iscsid; then
+    record_ok "iscsid is active on the host"
+  else
+    record_warn "iscsid is not active on the host"
+  fi
+
+  if [[ -d "${PK3S_LONGHORN_DATA_PATH:-/data}" ]]; then
+    record_ok "Longhorn host data path exists (${PK3S_LONGHORN_DATA_PATH:-/data})"
+  else
+    record_warn "Longhorn host data path is missing (${PK3S_LONGHORN_DATA_PATH:-/data})"
   fi
 
   check_namespace_rollup "longhorn-system" "Longhorn"

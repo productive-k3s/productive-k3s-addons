@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "${SCRIPT_DIR}/../../../scripts/addon-host-runtime.sh"
+
 KUBECTL_BIN="${PK3S_KUBECTL_BIN:-kubectl}"
 KUBECTL_MODE="${PK3S_KUBECTL_MODE:-kubectl}"
 REGISTRY_IMAGE="${PK3S_REGISTRY_IMAGE:-registry:2.8.3}"
@@ -12,6 +15,9 @@ CLUSTER_ISSUER="${PK3S_CLUSTER_ISSUER:-selfsigned-issuer}"
 REGISTRY_AUTH_ENABLED="${PK3S_REGISTRY_AUTH_ENABLED:-n}"
 REGISTRY_AUTH_USER="${PK3S_REGISTRY_AUTH_USER:-registry}"
 REGISTRY_AUTH_PASSWORD="${PK3S_REGISTRY_AUTH_PASSWORD:-change-me}"
+NODE_PRIMARY_IP="${PK3S_NODE_PRIMARY_IP:-}"
+MANAGE_LOCAL_HOSTS="${PK3S_REGISTRY_MANAGE_LOCAL_HOSTS:-n}"
+TRUST_LOCAL_DOCKER="${PK3S_REGISTRY_TRUST_DOCKER:-n}"
 
 kctl() {
   if [[ "${KUBECTL_MODE}" == "k3s" ]]; then
@@ -187,6 +193,18 @@ spec:
                   number: 5000
 EOF
   kctl -n registry rollout status deployment/registry --timeout=10m
+
+  if [[ "${MANAGE_LOCAL_HOSTS}" == "y" && -n "${NODE_PRIMARY_IP}" ]]; then
+    pk3s_replace_local_hosts_entry "${REGISTRY_HOST}" "${NODE_PRIMARY_IP}" "registry_host_local"
+  else
+    pk3s_manifest_complete_optional "registry_host_local" "skipped"
+  fi
+
+  if [[ "${TLS_SOURCE}" == "secret" && "${TRUST_LOCAL_DOCKER}" == "y" ]]; then
+    pk3s_install_local_docker_trust "registry" "registry-tls" "${REGISTRY_HOST}" "registry_docker_trust"
+  else
+    pk3s_manifest_complete_optional "registry_docker_trust" "skipped"
+  fi
 }
 
 if [[ "${BASH_SOURCE[0]}" == "$0" ]]; then

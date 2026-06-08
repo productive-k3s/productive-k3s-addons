@@ -27,6 +27,10 @@ metadata:
   version: 0.1.0
 spec:
   type: shell
+  impact:
+    cluster: true
+    host: false
+    summary: Demo addon
   configure:
     script: scripts/configure.sh
   install:
@@ -155,3 +159,36 @@ if bash "${VALIDATOR}" "${MISSING_HOOK_REPO}" >/tmp/productive-k3s-addons-missin
 fi
 grep -q "does not define required hook" /tmp/productive-k3s-addons-missing-hook.out || fail "validator did not report missing standardized hook"
 pass "validator rejects addon sources without standardized hook functions"
+
+MISSING_IMPACT_REPO="${WORK_DIR}/missing-impact"
+mkdir -p "${MISSING_IMPACT_REPO}/addons/demo/scripts" "${MISSING_IMPACT_REPO}/stacks/base"
+cat >"${MISSING_IMPACT_REPO}/addons/demo/addon.yaml" <<'EOF'
+apiVersion: addons.productive-k3s.io/v1
+kind: Addon
+metadata:
+  name: demo
+  version: 0.1.0
+spec:
+  type: shell
+  configure:
+    script: scripts/configure.sh
+  install:
+    script: scripts/install.sh
+  validate:
+    script: scripts/validate.sh
+  clean:
+    script: scripts/clean.sh
+  backup:
+    script: scripts/backup.sh
+EOF
+cp "${VALID_REPO}/addons/demo/scripts/configure.sh" "${MISSING_IMPACT_REPO}/addons/demo/scripts/configure.sh"
+cp "${VALID_REPO}/addons/demo/scripts/install.sh" "${MISSING_IMPACT_REPO}/addons/demo/scripts/install.sh"
+cp "${VALID_REPO}/addons/demo/scripts/validate.sh" "${MISSING_IMPACT_REPO}/addons/demo/scripts/validate.sh"
+cp "${VALID_REPO}/addons/demo/scripts/clean.sh" "${MISSING_IMPACT_REPO}/addons/demo/scripts/clean.sh"
+cp "${VALID_REPO}/addons/demo/scripts/backup.sh" "${MISSING_IMPACT_REPO}/addons/demo/scripts/backup.sh"
+cp "${VALID_REPO}/stacks/base/stack.yaml" "${MISSING_IMPACT_REPO}/stacks/base/stack.yaml"
+if bash "${VALIDATOR}" "${MISSING_IMPACT_REPO}" >/tmp/productive-k3s-addons-missing-impact.out 2>&1; then
+  fail "validator unexpectedly accepted addon source without impact metadata"
+fi
+grep -q "missing required spec.impact" /tmp/productive-k3s-addons-missing-impact.out || fail "validator did not report missing impact metadata"
+pass "validator rejects addon sources without impact metadata"

@@ -6,6 +6,10 @@ metadata:
   category: example
 spec:
   type: helm
+  impact:
+    cluster: true
+    host: false
+    summary: "Installs a simple nginx workload exposed through the cluster ingress."
   configure:
     script: scripts/configure.sh
   install:

@@ -29,6 +29,8 @@ pk3s_addon_configure() {
       local registry_auth_enabled="${REGISTRY_AUTH_ENABLED:-n}"
       local registry_auth_user="${REGISTRY_AUTH_USER:-registry}"
       local registry_auth_password="${REGISTRY_AUTH_PASSWORD:-change-me}"
+      local registry_manage_local_hosts="${REGISTRY_MANAGE_LOCAL_HOSTS:-n}"
+      local registry_trust_docker="${REGISTRY_TRUST_DOCKER:-n}"
 
       prompt registry_host "${registry_host}" "Registry hostname (DNS name)"
       prompt registry_size "${registry_size}" "Registry PVC size"
@@ -38,6 +40,18 @@ pk3s_addon_configure() {
         prompt registry_auth_user "${registry_auth_user}" "Registry username"
         prompt registry_auth_password "${registry_auth_password}" "Registry password"
       fi
+      if [[ "${PK3S_ALLOW_HOST_LOCAL_CHANGES:-n}" == "y" ]]; then
+        registry_manage_local_hosts="${REGISTRY_MANAGE_LOCAL_HOSTS:-y}"
+        prompt_yesno registry_manage_local_hosts "${registry_manage_local_hosts}" "Update local /etc/hosts on this machine for the registry hostname?"
+        if [[ "${PK3S_TLS_SOURCE:-secret}" == "secret" ]]; then
+          prompt_yesno registry_trust_docker "${registry_trust_docker}" "Install local Docker trust for the registry certificate on this machine?"
+        else
+          registry_trust_docker="n"
+        fi
+      else
+        registry_manage_local_hosts="n"
+        registry_trust_docker="n"
+      fi
 
       write_addon_config_var "${output_file}" "REGISTRY_HOST" "${registry_host}"
       write_addon_config_var "${output_file}" "REGISTRY_SIZE" "${registry_size}"
@@ -45,6 +59,8 @@ pk3s_addon_configure() {
       write_addon_config_var "${output_file}" "REGISTRY_AUTH_ENABLED" "${registry_auth_enabled}"
       write_addon_config_var "${output_file}" "REGISTRY_AUTH_USER" "${registry_auth_user}"
       write_addon_config_var "${output_file}" "REGISTRY_AUTH_PASSWORD" "${registry_auth_password}"
+      write_addon_config_var "${output_file}" "REGISTRY_MANAGE_LOCAL_HOSTS" "${registry_manage_local_hosts}"
+      write_addon_config_var "${output_file}" "REGISTRY_TRUST_DOCKER" "${registry_trust_docker}"
       ;;
     *)
       err "Unsupported registry configure phase: ${phase}"

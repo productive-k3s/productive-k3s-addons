@@ -9,6 +9,11 @@ usage() {
 Usage: ./scripts/productive-k3s-addons-dev.sh <command>
 
 Commands:
+  docs-build
+  docs-serve
+  docs-up
+  docs-down
+  docs-clean
   test-static
   test-contract
   test-live
@@ -18,6 +23,15 @@ EOF
 }
 
 case "${1:-help}" in
+  docs-build)
+    exec bash "${REPO_DIR}/docs/build.sh"
+    ;;
+  docs-serve|docs-up)
+    exec bash "${REPO_DIR}/docs/serve.sh"
+    ;;
+  docs-down|docs-clean)
+    exec bash "${REPO_DIR}/docs/clean.sh"
+    ;;
   test-static|test-contract|test-live|test-matrix|test-live-matrix)
     exec bash "${REPO_DIR}/tests/common.sh" "$@"
     ;;

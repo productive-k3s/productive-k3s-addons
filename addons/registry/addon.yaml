@@ -6,6 +6,13 @@ metadata:
   category: platform
 spec:
   type: shell
+  impact:
+    cluster: true
+    host: true
+    summary: "Installs an in-cluster registry and can optionally configure local /etc/hosts and Docker trust on the host."
+    hostCapabilities:
+      - etc-hosts
+      - docker-registry-trust
   configure:
     script: scripts/configure.sh
   install:

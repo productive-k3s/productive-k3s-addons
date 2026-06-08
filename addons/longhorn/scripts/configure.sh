@@ -34,6 +34,7 @@ pk3s_addon_configure() {
         prompt longhorn_minimal_available_percentage "${longhorn_minimal_available_percentage}" "Longhorn storage minimal available percentage (10 is recommended for single-node dev/lab)"
         log "Single-node Longhorn mode is enabled. The bootstrap will create a 'longhorn-single' StorageClass with numberOfReplicas=1."
       fi
+      warn "Longhorn host preparation will install open-iscsi, enable iscsid, and ensure the data path exists on this host."
       prompt_yesno longhorn_make_default "${longhorn_make_default}" "Make Longhorn the default StorageClass?"
 
       write_addon_config_var "${output_file}" "LONGHORN_DATA_PATH" "${longhorn_data_path}"

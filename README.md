@@ -1,7 +1,5 @@
 # Productive K3S Addons
 
-> Work in progress.
-
 `productive-k3s-addons` is the public Kubernetes content repository for the Productive K3S ecosystem.
 
 It is intentionally separate from `productive-k3s-core`:
@@ -39,8 +37,6 @@ Everything beyond that remains an add-on responsibility. If an add-on needs cust
 productive-k3s-addons/
 ├── addons/
 ├── stacks/
-├── examples/
-├── charts/
 ├── scripts/
 ├── docs/
 └── tests/
@@ -54,14 +50,22 @@ Contains individual add-on source packages such as `nginx`.
 
 Each add-on is versioned, source-oriented, and intended to be packaged into `addon.tgz` by `productive-k3s-ops`. `productive-k3s-core` validates and installs the packaged artifact.
 
-The current source contract is minimal:
+The normalized source contract is:
 
 ```text
 addon.yaml
+scripts/configure.sh
 scripts/install.sh
+scripts/validate.sh
+scripts/clean.sh
+scripts/backup.sh
 ```
 
-Additional files such as `values.yaml`, `README.md`, `charts/`, or `assets/` are optional.
+Each add-on now also declares impact metadata so Core can warn in advance whether it will:
+
+- touch cluster state
+- touch host-local state
+- use specific host-local capabilities such as `/etc/hosts`, Docker trust, package installation, or service enablement
 
 ### `stacks/`
 
@@ -81,28 +85,6 @@ The first stack exported from this repository is `stacks/base`, which declarativ
 - `longhorn`
 - `rancher`
 - `registry`
-
----
-
-### `examples/`
-
-Contains example stacks or reference compositions.
-
-Examples are not necessarily reusable addons by themselves. They are intended to show how multiple addons, configurations, or tools can be combined for a specific scenario.
-
-This folder can include demos, prototypes, or reference architectures.
-
----
-
-### `charts/`
-
-Contains custom Helm charts or wrapper charts maintained by this repository.
-
-This folder should be used only when an addon requires a chart that is not available externally, or when a thin wrapper is useful to provide a Productive K3S-friendly installation experience.
-
-Whenever possible, existing upstream charts should be reused instead of duplicated.
-
----
 
 ### `scripts/`
 
@@ -169,9 +151,7 @@ In the future, it may expose commands to discover or install addons.
 
 ## Status
 
-This repository is in active migration.
-
-The `base` stack intent now lives here, but the full runtime extraction from `productive-k3s-core` is still incremental. Until that migration completes, some stack behavior remains embedded in Core even though the declarative source of truth is being moved here.
+This repository is now the source of truth for public add-ons and stacks, including the `base` stack and the add-on-level host impact metadata consumed by Core.
 
 ## License
 

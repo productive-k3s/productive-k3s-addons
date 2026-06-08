@@ -25,12 +25,18 @@ pk3s_addon_configure() {
     details)
       local rancher_host="${RANCHER_HOST:-rancher.example.local}"
       local admin_pass="${ADMIN_PASS:-admin}"
+      local rancher_manage_local_hosts="${RANCHER_MANAGE_LOCAL_HOSTS:-n}"
 
       prompt rancher_host "${rancher_host}" "Rancher hostname (DNS name)"
       prompt admin_pass "${admin_pass}" "Rancher bootstrap password"
+      if [[ "${PK3S_ALLOW_HOST_LOCAL_CHANGES:-n}" == "y" ]]; then
+        rancher_manage_local_hosts="${RANCHER_MANAGE_LOCAL_HOSTS:-y}"
+        prompt_yesno rancher_manage_local_hosts "${rancher_manage_local_hosts}" "Update local /etc/hosts on this machine for the Rancher hostname?"
+      fi
 
       write_addon_config_var "${output_file}" "RANCHER_HOST" "${rancher_host}"
       write_addon_config_var "${output_file}" "ADMIN_PASS" "${admin_pass}"
+      write_addon_config_var "${output_file}" "RANCHER_MANAGE_LOCAL_HOSTS" "${rancher_manage_local_hosts}"
       ;;
     *)
       err "Unsupported rancher configure phase: ${phase}"

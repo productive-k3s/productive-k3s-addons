@@ -61,6 +61,40 @@ validate_addon_dir() {
     fi
   done
 
+  for required_section in cluster host summary; do
+    if ! awk -v section="${required_section}" '
+      /^spec:/ { in_spec=1; next }
+      in_spec && /^  impact:/ { in_impact=1; next }
+      in_impact && $0 ~ ("^    " section ":") { found=1; exit }
+      in_impact && /^[^ ]/ { exit }
+      END { exit found ? 0 : 1 }
+    ' "${addon_dir}/addon.yaml"; then
+      echo "Publishable addon source missing required spec.impact.${required_section} declaration: ${addon_dir}" >&2
+      exit 1
+    fi
+  done
+
+  local host_enabled
+  host_enabled="$(awk '
+    /^spec:/ { in_spec=1; next }
+    in_spec && /^  impact:/ { in_impact=1; next }
+    in_impact && /^    host:/ { sub(/^    host:[[:space:]]*/, "", $0); print; exit }
+    in_impact && /^[^ ]/ { exit }
+  ' "${addon_dir}/addon.yaml")"
+  if [[ "${host_enabled}" == "true" ]]; then
+    if ! awk '
+      /^spec:/ { in_spec=1; next }
+      in_spec && /^  impact:/ { in_impact=1; next }
+      in_impact && /^    hostCapabilities:/ { in_caps=1; next }
+      in_caps && /^      - / { found=1; exit }
+      in_caps && !/^      - / { exit }
+      END { exit found ? 0 : 1 }
+    ' "${addon_dir}/addon.yaml"; then
+      echo "Publishable addon source with spec.impact.host=true must declare spec.impact.hostCapabilities entries: ${addon_dir}" >&2
+      exit 1
+    fi
+  fi
+
   while IFS= read -r required_script; do
     [[ -n "${required_script}" ]] || continue
     [[ -f "${addon_dir}/${required_script}" ]] || {

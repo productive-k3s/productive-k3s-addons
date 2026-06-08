@@ -6,6 +6,10 @@ metadata:
   category: platform
 spec:
   type: shell
+  impact:
+    cluster: true
+    host: false
+    summary: "Installs cert-manager and manages ClusterIssuer resources for TLS-enabled add-ons."
   configure:
     script: scripts/configure.sh
   install:

@@ -6,6 +6,14 @@ metadata:
   category: platform
 spec:
   type: helm
+  impact:
+    cluster: true
+    host: true
+    summary: "Installs Longhorn and prepares the host with iSCSI packages, service enablement, and the data path."
+    hostCapabilities:
+      - package-install
+      - service-enable
+      - filesystem-path
   configure:
     script: scripts/configure.sh
   install:
