@@ -29,15 +29,17 @@ pk3s_addon_validate() {
   if [[ -n "${rancher_host}" ]]; then
     if getent hosts "${rancher_host}" >/dev/null 2>&1; then
       record_ok "${rancher_host} resolves locally"
-    else
+      local rancher_code
+      rancher_code="$(curl -k -s -o /dev/null -w '%{http_code}' --max-time 10 "https://${rancher_host}" || true)"
+      if [[ "${rancher_code}" =~ ^(200|302|401|403)$ ]]; then
+        record_ok "Rancher HTTPS endpoint responds with HTTP ${rancher_code}"
+      else
+        record_warn "Rancher HTTPS endpoint did not return an expected code (got '${rancher_code:-none}')"
+      fi
+    elif [[ "${APPLY_SETTING_RANCHER_MANAGE_LOCAL_HOSTS:-}" == "y" ]]; then
       record_warn "${rancher_host} does not resolve locally"
-    fi
-    local rancher_code
-    rancher_code="$(curl -k -s -o /dev/null -w '%{http_code}' --max-time 10 "https://${rancher_host}" || true)"
-    if [[ "${rancher_code}" =~ ^(200|302|401|403)$ ]]; then
-      record_ok "Rancher HTTPS endpoint responds with HTTP ${rancher_code}"
     else
-      record_warn "Rancher HTTPS endpoint did not return an expected code (got '${rancher_code:-none}')"
+      info "${rancher_host} was not configured for local host resolution; skipping local HTTPS probe"
     fi
   fi
 }

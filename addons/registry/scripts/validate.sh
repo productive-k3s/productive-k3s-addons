@@ -35,15 +35,19 @@ pk3s_addon_validate() {
   if [[ -n "${registry_host}" ]]; then
     if getent hosts "${registry_host}" >/dev/null 2>&1; then
       record_ok "${registry_host} resolves locally"
-    else
+      local registry_code
+      registry_code="$(curl -k -s -o /dev/null -w '%{http_code}' --max-time 10 "https://${registry_host}/v2/" || true)"
+      if [[ "${registry_code}" =~ ^(200|401)$ ]]; then
+        record_ok "Registry HTTPS endpoint responds with HTTP ${registry_code}"
+      else
+        record_warn "Registry HTTPS endpoint did not return an expected code (got '${registry_code:-none}')"
+      fi
+    elif [[ "${APPLY_SETTING_REGISTRY_MANAGE_LOCAL_HOSTS:-}" == "y" ]]; then
       record_warn "${registry_host} does not resolve locally"
-    fi
-    local registry_code
-    registry_code="$(curl -k -s -o /dev/null -w '%{http_code}' --max-time 10 "https://${registry_host}/v2/" || true)"
-    if [[ "${registry_code}" =~ ^(200|401)$ ]]; then
-      record_ok "Registry HTTPS endpoint responds with HTTP ${registry_code}"
+    elif [[ "${APPLY_SETTING_REGISTRY_MANAGE_LOCAL_HOSTS:-}" == "n" ]]; then
+      info "${registry_host} was not configured for local host resolution; skipping local HTTPS probe"
     else
-      record_warn "Registry HTTPS endpoint did not return an expected code (got '${registry_code:-none}')"
+      info "${registry_host} does not resolve locally; skipping local HTTPS probe"
     fi
   fi
 
