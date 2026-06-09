@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-source "${SCRIPT_DIR}/../../../scripts/addon-host-runtime.sh"
+ADDON_SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "${ADDON_SCRIPT_DIR}/../../../scripts/addon-host-runtime.sh"
 
 pk3s_addon_clean() {
   if ! service_active k3s; then

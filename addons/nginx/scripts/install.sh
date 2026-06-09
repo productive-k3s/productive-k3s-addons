@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+ADDON_SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 HELM_BIN="${PK3S_HELM_BIN:-helm}"
-VALUES_FILE="${SCRIPT_DIR}/../values.yaml"
+VALUES_FILE="${ADDON_SCRIPT_DIR}/../values.yaml"
 RELEASE_NAME="${PK3S_ADDON_RELEASE_NAME:-pk3s-nginx}"
 NAMESPACE="${PK3S_ADDON_NAMESPACE:-pk3s-nginx}"
 

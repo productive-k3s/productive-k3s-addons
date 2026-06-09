@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-source "${SCRIPT_DIR}/../../../scripts/addon-host-runtime.sh"
+ADDON_SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "${ADDON_SCRIPT_DIR}/../../../scripts/addon-host-runtime.sh"
 
 KUBECTL_BIN="${PK3S_KUBECTL_BIN:-kubectl}"
 HELM_BIN="${PK3S_HELM_BIN:-helm}"
