@@ -22,7 +22,10 @@ pk3s_addon_clean() {
   if [[ -z "${rancher_host}" ]]; then
     rancher_host="$(kubectl_k3s get ingress rancher -n cattle-system -o jsonpath='{.spec.rules[0].host}' 2>/dev/null || true)"
   fi
-  [[ -n "${rancher_host}" ]] && pk3s_remove_local_hosts_entry "${rancher_host}"
+  if [[ -n "${rancher_host}" ]]; then
+    pk3s_remove_local_hosts_entry "${rancher_host}"
+  fi
+  return 0
 }
 
 pk3s_rancher_clean() {
