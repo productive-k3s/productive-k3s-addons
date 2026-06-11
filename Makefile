@@ -12,7 +12,7 @@ help:
 	@echo "  make docs-down                              Clean generated docs artifacts"
 	@echo "  make docs-clean                             Remove docs virtualenv and site/"
 	@echo "  make validate-layout                         Validate addon/stack source layout"
-	@echo "  make test-all                               Run local non-live checks (layout + matrix)"
+	@echo "  make test-all                               Run local non-live checks (layout + static + contract)"
 	@echo "  make test-static ADDON=<name>|STACK=<name>   Run repository static checks"
 	@echo "  make test-contract ADDON=<name>|STACK=<name> Validate content against productive-k3s-core"
 	@echo "  make test-live ADDON=<name>                  Install a packaged addon through productive-k3s-core"
@@ -37,7 +37,7 @@ docs-clean:
 validate-layout:
 	@bash $(SCRIPTS_DIR)/validate-addon-package.sh .
 
-test-all: validate-layout test-matrix
+test-all: validate-layout test-static test-contract
 
 test-static:
 	ADDON="$(ADDON)" STACK="$(STACK)" CORE_VERSION="$(CORE_VERSION)" PRODUCTIVE_K3S_CORE_REPO_DIR="$(PRODUCTIVE_K3S_CORE_REPO_DIR)" PRODUCTIVE_K3S_CORE_REPO_URL="$(PRODUCTIVE_K3S_CORE_REPO_URL)" PRODUCTIVE_K3S_CORE_REPO_REF="$(PRODUCTIVE_K3S_CORE_REPO_REF)" $(SCRIPTS_DIR)/productive-k3s-addons-dev.sh test-static

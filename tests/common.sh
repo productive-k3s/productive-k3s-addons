@@ -92,6 +92,10 @@ resolve_name() {
   fail "set ADDON=<name> or STACK=<name>"
 }
 
+has_selection() {
+  [[ -n "${ADDON:-}" || -n "${STACK:-}" ]]
+}
+
 run_target_level() {
   local level="$1"
   local kind="$2"
@@ -125,10 +129,18 @@ prepare_core_checkout
 
 case "${1:-}" in
   test-static)
-    run_target_level static "$(resolve_kind)" "$(resolve_name)"
+    if has_selection; then
+      run_target_level static "$(resolve_kind)" "$(resolve_name)"
+    else
+      run_matrix_levels static
+    fi
     ;;
   test-contract)
-    run_target_level contract "$(resolve_kind)" "$(resolve_name)"
+    if has_selection; then
+      run_target_level contract "$(resolve_kind)" "$(resolve_name)"
+    else
+      run_matrix_levels contract
+    fi
     ;;
   test-live)
     run_target_level live "$(resolve_kind)" "$(resolve_name)"

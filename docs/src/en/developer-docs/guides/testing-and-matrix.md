@@ -23,6 +23,6 @@ make test-matrix PRODUCTIVE_K3S_CORE_REPO_DIR=/path/to/productive-k3s-core
 
 Meaning:
 
-- `test-all`: local non-live checks only (`validate-layout + test-matrix`)
+- `test-all`: local non-live checks only (`validate-layout + test-static + test-contract`)
 - `test-live`: live validation for one selected add-on or stack
 - `test-live-matrix`: live validation across every discovered add-on and stack

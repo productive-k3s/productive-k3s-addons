@@ -24,7 +24,8 @@ make test-matrix
 `make test-all` is the local safe entrypoint:
 
 - `validate-layout`
-- `test-matrix`
+- `test-static`
+- `test-contract`
 
 It does not run live install checks against a real cluster.
 

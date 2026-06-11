@@ -11,6 +11,12 @@ make test-live ADDON=<name> KUBECONFIG=~/.kube/config
 make test-matrix
 ```
 
+`make test-all` is the local non-live entrypoint and runs:
+
+- `validate-layout`
+- `test-static`
+- `test-contract`
+
 For coordinated work with an unreleased Core checkout:
 
 ```bash

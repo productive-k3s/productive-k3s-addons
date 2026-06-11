@@ -116,7 +116,7 @@ Contains repository-level validation and cross-testing entrypoints.
 
 Current workflow:
 
-- `make test-all`: local non-live checks (`validate-layout + test-matrix`)
+- `make test-all`: local non-live checks (`validate-layout + test-static + test-contract`)
 - `make test-static`: validate local repository layout for a selected add-on or stack
 - `make test-contract`: validate selected source content against a chosen `productive-k3s-core` version
 - `make test-live`: manual package-first install path for a selected add-on
