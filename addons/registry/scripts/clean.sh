@@ -4,6 +4,8 @@ ADDON_SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "${ADDON_SCRIPT_DIR}/../../../scripts/addon-host-runtime.sh"
 
 pk3s_addon_clean() {
+  local registry_host="${1:-${PK3S_REGISTRY_HOST:-}}"
+
   if ! service_active k3s; then
     return 0
   fi
@@ -17,7 +19,6 @@ pk3s_addon_clean() {
   kubectl_k3s delete secret registry-auth -n registry --ignore-not-found || true
   kubectl_k3s delete namespace registry --ignore-not-found --wait=false >/dev/null 2>&1 || true
 
-  local registry_host="${PK3S_REGISTRY_HOST:-}"
   if [[ -z "${registry_host}" ]]; then
     registry_host="$(kubectl_k3s get ingress registry -n registry -o jsonpath='{.spec.rules[0].host}' 2>/dev/null || true)"
   fi

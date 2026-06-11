@@ -4,6 +4,8 @@ ADDON_SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "${ADDON_SCRIPT_DIR}/../../../scripts/addon-host-runtime.sh"
 
 pk3s_addon_clean() {
+  local rancher_host="${1:-${PK3S_RANCHER_HOST:-}}"
+
   if ! service_active k3s; then
     return 0
   fi
@@ -17,7 +19,6 @@ pk3s_addon_clean() {
   delete_named_resources_matching apiservices 'cattle|fleet'
   delete_named_resources_matching crd 'cattle\.io|fleet\.cattle\.io'
 
-  local rancher_host="${PK3S_RANCHER_HOST:-}"
   if [[ -z "${rancher_host}" ]]; then
     rancher_host="$(kubectl_k3s get ingress rancher -n cattle-system -o jsonpath='{.spec.rules[0].host}' 2>/dev/null || true)"
   fi
