@@ -40,7 +40,7 @@ prepare_core_checkout() {
     return 0
   fi
 
-  local ref="${CORE_VERSION:-}"
+  local ref="${CORE_VERSION:-${PRODUCTIVE_K3S_CORE_REPO_REF:-}}"
   if [[ -z "${ref}" ]]; then
     ref="$(resolve_latest_core_release)"
     [[ -n "${ref}" ]] || fail "could not resolve latest productive-k3s-core release"
