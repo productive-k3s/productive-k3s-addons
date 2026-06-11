@@ -14,11 +14,19 @@ Current levels:
 Use the repository root targets:
 
 ```bash
+make test-all
 make test-static ADDON=nginx
 make test-contract ADDON=nginx
 make test-live ADDON=nginx KUBECONFIG=~/.kube/config
 make test-matrix
 ```
+
+`make test-all` is the local safe entrypoint:
+
+- `validate-layout`
+- `test-matrix`
+
+It does not run live install checks against a real cluster.
 
 When validating stack content before the next Core release is published, point the runner to a newer Core revision:
 
