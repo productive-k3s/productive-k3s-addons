@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 pk3s_addon_clean() {
-  if ! service_active k3s; then
+  if ! pk3s_runtime_server_active; then
     return 0
   fi
 

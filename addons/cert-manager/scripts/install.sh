@@ -9,6 +9,7 @@ TLS_SOURCE="${PK3S_TLS_SOURCE:-secret}"
 CLUSTER_ISSUER="${PK3S_CLUSTER_ISSUER:-selfsigned}"
 LE_EMAIL="${PK3S_LETSENCRYPT_EMAIL:-admin@example.invalid}"
 LE_ENVIRONMENT="${PK3S_LETSENCRYPT_ENVIRONMENT:-staging}"
+INGRESS_CLASS_NAME="${PK3S_INGRESS_CLASS_NAME:-traefik}"
 
 wait_rollout() {
   local namespace="$1"
@@ -67,7 +68,7 @@ spec:
     solvers:
     - http01:
         ingress:
-          ingressClassName: traefik
+          ingressClassName: ${INGRESS_CLASS_NAME}
 EOF
     else
       cat <<EOF | kctl apply -f -

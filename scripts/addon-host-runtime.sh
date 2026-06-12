@@ -1,5 +1,15 @@
 #!/usr/bin/env bash
 
+ADDON_RUNTIME_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+if [[ -n "${PRODUCTIVE_K3S_CORE_REPO_DIR:-}" && -f "${PRODUCTIVE_K3S_CORE_REPO_DIR}/scripts/runtime-contract.sh" ]]; then
+  # shellcheck disable=SC1091
+  source "${PRODUCTIVE_K3S_CORE_REPO_DIR}/scripts/runtime-contract.sh"
+elif [[ -f "${ADDON_RUNTIME_DIR}/../../productive-k3s-core/scripts/runtime-contract.sh" ]]; then
+  # shellcheck disable=SC1091
+  source "${ADDON_RUNTIME_DIR}/../../productive-k3s-core/scripts/runtime-contract.sh"
+fi
+
 pk3s_runtime_cmd_exists() {
   command -v "$1" >/dev/null 2>&1
 }

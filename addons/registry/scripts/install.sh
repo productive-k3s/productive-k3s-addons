@@ -18,6 +18,7 @@ REGISTRY_AUTH_PASSWORD="${PK3S_REGISTRY_AUTH_PASSWORD:-change-me}"
 NODE_PRIMARY_IP="${PK3S_NODE_PRIMARY_IP:-}"
 MANAGE_LOCAL_HOSTS="${PK3S_REGISTRY_MANAGE_LOCAL_HOSTS:-n}"
 TRUST_LOCAL_DOCKER="${PK3S_REGISTRY_TRUST_DOCKER:-n}"
+INGRESS_CLASS_NAME="${PK3S_INGRESS_CLASS_NAME:-traefik}"
 
 kctl() {
   if [[ "${KUBECTL_MODE}" == "k3s" ]]; then
@@ -176,6 +177,7 @@ metadata:
   namespace: registry
 $(printf '%b\n' "${INGRESS_ANNOTATIONS}")
 spec:
+  ingressClassName: ${INGRESS_CLASS_NAME}
   tls:
   - hosts:
     - ${REGISTRY_HOST}

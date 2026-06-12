@@ -6,7 +6,7 @@ source "${ADDON_SCRIPT_DIR}/../../../scripts/addon-host-runtime.sh"
 pk3s_addon_clean() {
   local registry_host="${1:-${PK3S_REGISTRY_HOST:-}}"
 
-  if ! service_active k3s; then
+  if ! pk3s_runtime_server_active; then
     return 0
   fi
 

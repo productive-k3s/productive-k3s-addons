@@ -17,6 +17,7 @@ LE_ENVIRONMENT="${PK3S_LETSENCRYPT_ENVIRONMENT:-staging}"
 PRIVATE_CA="${PK3S_RANCHER_PRIVATE_CA:-true}"
 NODE_PRIMARY_IP="${PK3S_NODE_PRIMARY_IP:-}"
 MANAGE_LOCAL_HOSTS="${PK3S_RANCHER_MANAGE_LOCAL_HOSTS:-n}"
+INGRESS_CLASS_NAME="${PK3S_INGRESS_CLASS_NAME:-traefik}"
 
 kctl() {
   if [[ "${KUBECTL_MODE}" == "k3s" ]]; then
@@ -92,6 +93,7 @@ EOF
       --version "${RANCHER_VERSION}" \
       --set hostname="${RANCHER_HOST}" \
       --set bootstrapPassword="${BOOTSTRAP_PASSWORD}" \
+      --set ingress.ingressClassName="${INGRESS_CLASS_NAME}" \
       --set ingress.tls.source=secret \
       --set privateCA="${PRIVATE_CA}"
   else
@@ -100,6 +102,7 @@ EOF
       --version "${RANCHER_VERSION}" \
       --set hostname="${RANCHER_HOST}" \
       --set bootstrapPassword="${BOOTSTRAP_PASSWORD}" \
+      --set ingress.ingressClassName="${INGRESS_CLASS_NAME}" \
       --set ingress.tls.source=letsEncrypt \
       --set letsEncrypt.email="${LE_EMAIL}" \
       --set letsEncrypt.environment="${LE_ENVIRONMENT}"
