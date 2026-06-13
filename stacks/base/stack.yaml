@@ -4,6 +4,14 @@ metadata:
   name: base
   version: 0.1.0
 spec:
+  resolution:
+    mode: catalog
+  runtime:
+    compatibility:
+      kubernetes:
+        distros:
+          - k3s
+          - rke2
   addons:
     - cert-manager
     - longhorn
