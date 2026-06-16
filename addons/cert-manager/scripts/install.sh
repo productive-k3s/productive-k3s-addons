@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+ADDON_SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "${ADDON_SCRIPT_DIR}/../../../scripts/addon-host-runtime.sh"
+
 KUBECTL_BIN="${PK3S_KUBECTL_BIN:-kubectl}"
 CERT_MANAGER_VERSION="${PK3S_CERT_MANAGER_VERSION:-v1.19.4}"
 KUBECTL_MODE="${PK3S_KUBECTL_MODE:-kubectl}"
@@ -32,11 +35,7 @@ wait_endpoints() {
 }
 
 kctl() {
-  if [[ "${KUBECTL_MODE}" == "k3s" ]]; then
-    sudo k3s kubectl "$@"
-  else
-    "${KUBECTL_BIN}" "$@"
-  fi
+  pk3s_addon_kubectl "$@"
 }
 
 clusterissuer_exists() {

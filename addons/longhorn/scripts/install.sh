@@ -15,11 +15,7 @@ LONGHORN_MINIMAL_AVAILABLE_PERCENTAGE="${PK3S_LONGHORN_MINIMAL_AVAILABLE_PERCENT
 LONGHORN_MAKE_DEFAULT="${PK3S_LONGHORN_MAKE_DEFAULT:-n}"
 
 kctl() {
-  if [[ "${KUBECTL_MODE}" == "k3s" ]]; then
-    sudo k3s kubectl "$@"
-  else
-    "${KUBECTL_BIN}" "$@"
-  fi
+  pk3s_addon_kubectl "$@"
 }
 
 pk3s_addon_install() {

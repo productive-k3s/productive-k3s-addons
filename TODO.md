@@ -27,6 +27,9 @@ Rules:
 - `Add Stack Source Validation Helpers`
   `Provide simple repo-local validation helpers so broken stack manifests or duplicate addon references are caught before packaging time.`
 
+- `Centralize GitHub Owner and Core Release Source`
+  `Replace hardcoded jemacchi URLs with repo-local defaults in tests/common.sh and docs/mkdocs.yml so Core release lookup and repo links do not depend on a personal namespace.`
+
 - `Review Public Exposure Metadata`
   `Check that addons using the basic public exposure contract declare service, namespace, and port metadata consistently.`
 

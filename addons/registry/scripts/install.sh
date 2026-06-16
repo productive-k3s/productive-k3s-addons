@@ -21,11 +21,7 @@ TRUST_LOCAL_DOCKER="${PK3S_REGISTRY_TRUST_DOCKER:-n}"
 INGRESS_CLASS_NAME="${PK3S_INGRESS_CLASS_NAME:-traefik}"
 
 kctl() {
-  if [[ "${KUBECTL_MODE}" == "k3s" ]]; then
-    sudo k3s kubectl "$@"
-  else
-    "${KUBECTL_BIN}" "$@"
-  fi
+  pk3s_addon_kubectl "$@"
 }
 
 wait_secret() {

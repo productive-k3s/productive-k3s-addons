@@ -87,6 +87,21 @@ pk3s_runtime_run_cmd() {
   fi
 }
 
+pk3s_addon_kubectl() {
+  local kubectl_mode="${PK3S_KUBECTL_MODE:-kubectl}"
+  local kubectl_bin="${PK3S_KUBECTL_BIN:-kubectl}"
+
+  if [[ "${kubectl_mode}" == "k3s" ]]; then
+    if declare -F pk3s_runtime_kubectl >/dev/null 2>&1; then
+      pk3s_runtime_kubectl "$@"
+    else
+      command k3s kubectl "$@"
+    fi
+  else
+    "${kubectl_bin}" "$@"
+  fi
+}
+
 pk3s_ensure_packages_optional() {
   local label="$1"
   shift
@@ -162,7 +177,7 @@ pk3s_export_tls_secret_cert() {
   local kubectl_bin="${PK3S_KUBECTL_BIN:-kubectl}"
 
   if [[ "${kubectl_mode}" == "k3s" ]]; then
-    sudo k3s kubectl -n "${namespace}" get secret "${secret_name}" -o jsonpath='{.data.tls\.crt}' 2>/dev/null | base64 -d | sudo tee "${output_path}" >/dev/null
+    pk3s_addon_kubectl -n "${namespace}" get secret "${secret_name}" -o jsonpath='{.data.tls\.crt}' 2>/dev/null | base64 -d | sudo tee "${output_path}" >/dev/null
   else
     "${kubectl_bin}" -n "${namespace}" get secret "${secret_name}" -o jsonpath='{.data.tls\.crt}' 2>/dev/null | base64 -d | sudo tee "${output_path}" >/dev/null
   fi

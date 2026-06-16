@@ -20,11 +20,7 @@ MANAGE_LOCAL_HOSTS="${PK3S_RANCHER_MANAGE_LOCAL_HOSTS:-n}"
 INGRESS_CLASS_NAME="${PK3S_INGRESS_CLASS_NAME:-traefik}"
 
 kctl() {
-  if [[ "${KUBECTL_MODE}" == "k3s" ]]; then
-    sudo k3s kubectl "$@"
-  else
-    "${KUBECTL_BIN}" "$@"
-  fi
+  pk3s_addon_kubectl "$@"
 }
 
 wait_secret() {
