@@ -21,13 +21,19 @@ TRUST_LOCAL_DOCKER="${PK3S_REGISTRY_TRUST_DOCKER:-n}"
 INGRESS_CLASS_NAME="${PK3S_INGRESS_CLASS_NAME:-traefik}"
 
 kctl() {
-  if declare -F pk3s_addon_kubectl >/dev/null 2>&1; then
+  if [[ "${PK3S_KUBECTL_MODE:-kubectl}" == "kubectl" ]]; then
+    "${KUBECTL_BIN}" "$@"
+  elif declare -F pk3s_addon_kubectl >/dev/null 2>&1; then
     pk3s_addon_kubectl "$@"
   elif declare -F pk3s_runtime_kubectl >/dev/null 2>&1; then
     pk3s_runtime_kubectl "$@"
   else
     "${KUBECTL_BIN}" "$@"
   fi
+}
+
+can_run_optional_host_changes() {
+  sudo -n true >/dev/null 2>&1 || [[ -t 0 && -t 1 ]]
 }
 
 wait_secret() {
@@ -56,6 +62,10 @@ wait_certificate_ready() {
   done
   printf 'timed out waiting for certificate readiness: %s/%s\n' "${namespace}" "${certificate}" >&2
   return 1
+}
+
+existing_pvc_storage_class() {
+  kctl -n registry get pvc registry-data -o jsonpath='{.spec.storageClassName}' 2>/dev/null || true
 }
 
 pk3s_addon_install() {
@@ -88,6 +98,10 @@ EOF
     AUTH_HASH="$(openssl passwd -apr1 "${REGISTRY_AUTH_PASSWORD}")"
     kctl delete secret registry-auth -n registry >/dev/null 2>&1 || true
     printf '%s:%s\n' "${REGISTRY_AUTH_USER}" "${AUTH_HASH}" | kctl create secret generic registry-auth -n registry --from-file=htpasswd=/dev/stdin >/dev/null
+  fi
+
+  if [[ -z "${REGISTRY_STORAGE_CLASS}" ]]; then
+    REGISTRY_STORAGE_CLASS="$(existing_pvc_storage_class)"
   fi
 
   PVC_STORAGE_CLASS_BLOCK=""
@@ -199,12 +213,22 @@ EOF
   kctl -n registry rollout status deployment/registry --timeout=10m
 
   if [[ "${MANAGE_LOCAL_HOSTS}" == "y" && -n "${NODE_PRIMARY_IP}" ]]; then
-    pk3s_replace_local_hosts_entry "${REGISTRY_HOST}" "${NODE_PRIMARY_IP}" "registry_host_local"
+    if ! can_run_optional_host_changes; then
+      printf '[WARN] Skipping local /etc/hosts update for Registry because sudo is not available non-interactively.\n' >&2
+      pk3s_manifest_complete_optional "registry_host_local" "skipped" "sudo unavailable"
+    else
+      pk3s_replace_local_hosts_entry "${REGISTRY_HOST}" "${NODE_PRIMARY_IP}" "registry_host_local"
+    fi
   else
     pk3s_manifest_complete_optional "registry_host_local" "skipped"
   fi
 
   if [[ "${TLS_SOURCE}" == "secret" && "${TRUST_LOCAL_DOCKER}" == "y" ]]; then
+    if ! can_run_optional_host_changes; then
+      printf '[WARN] Skipping local Docker trust for Registry because sudo is not available non-interactively.\n' >&2
+      pk3s_manifest_complete_optional "registry_docker_trust" "skipped" "sudo unavailable"
+      return 0
+    fi
     pk3s_install_local_docker_trust "registry" "registry-tls" "${REGISTRY_HOST}" "registry_docker_trust"
   else
     pk3s_manifest_complete_optional "registry_docker_trust" "skipped"

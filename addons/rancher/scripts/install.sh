@@ -20,13 +20,19 @@ MANAGE_LOCAL_HOSTS="${PK3S_RANCHER_MANAGE_LOCAL_HOSTS:-n}"
 INGRESS_CLASS_NAME="${PK3S_INGRESS_CLASS_NAME:-traefik}"
 
 kctl() {
-  if declare -F pk3s_addon_kubectl >/dev/null 2>&1; then
+  if [[ "${PK3S_KUBECTL_MODE:-kubectl}" == "kubectl" ]]; then
+    "${KUBECTL_BIN}" "$@"
+  elif declare -F pk3s_addon_kubectl >/dev/null 2>&1; then
     pk3s_addon_kubectl "$@"
   elif declare -F pk3s_runtime_kubectl >/dev/null 2>&1; then
     pk3s_runtime_kubectl "$@"
   else
     "${KUBECTL_BIN}" "$@"
   fi
+}
+
+can_run_optional_host_changes() {
+  sudo -n true >/dev/null 2>&1 || [[ -t 0 && -t 1 ]]
 }
 
 wait_secret() {
@@ -113,6 +119,11 @@ EOF
   kctl -n cattle-system rollout status deployment/rancher --timeout=10m || true
 
   if [[ "${MANAGE_LOCAL_HOSTS}" == "y" && -n "${NODE_PRIMARY_IP}" ]]; then
+    if ! can_run_optional_host_changes; then
+      printf '[WARN] Skipping local /etc/hosts update for Rancher because sudo is not available non-interactively.\n' >&2
+      pk3s_manifest_complete_optional "rancher_host_local" "skipped" "sudo unavailable"
+      return 0
+    fi
     pk3s_replace_local_hosts_entry "${RANCHER_HOST}" "${NODE_PRIMARY_IP}" "rancher_host_local"
   else
     pk3s_manifest_complete_optional "rancher_host_local" "skipped"

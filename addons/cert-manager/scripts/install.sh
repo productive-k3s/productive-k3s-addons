@@ -35,7 +35,9 @@ wait_endpoints() {
 }
 
 kctl() {
-  if declare -F pk3s_addon_kubectl >/dev/null 2>&1; then
+  if [[ "${PK3S_KUBECTL_MODE:-kubectl}" == "kubectl" ]]; then
+    "${KUBECTL_BIN}" "$@"
+  elif declare -F pk3s_addon_kubectl >/dev/null 2>&1; then
     pk3s_addon_kubectl "$@"
   elif declare -F pk3s_runtime_kubectl >/dev/null 2>&1; then
     pk3s_runtime_kubectl "$@"

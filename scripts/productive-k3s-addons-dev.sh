@@ -41,6 +41,29 @@ clean_named_suite_artifacts() {
   rm -f "$(artifacts_dir)"/test-"${suite_category}"-*-"${suite_name}".log
 }
 
+run_live_matrix_with_defaults() {
+  local tls_source="${PK3S_TLS_SOURCE:-secret}"
+  local cluster_issuer_action="${PK3S_CLUSTER_ISSUER_ACTION:-install}"
+  local cluster_issuer="${PK3S_CLUSTER_ISSUER:-selfsigned-issuer}"
+  local allow_host_local_changes="${PK3S_ALLOW_HOST_LOCAL_CHANGES:-n}"
+  local rancher_manage_local_hosts="${PK3S_RANCHER_MANAGE_LOCAL_HOSTS:-n}"
+  local registry_manage_local_hosts="${PK3S_REGISTRY_MANAGE_LOCAL_HOSTS:-n}"
+  local registry_trust_docker="${PK3S_REGISTRY_TRUST_DOCKER:-n}"
+
+  printf '[INFO] Live matrix defaults: PK3S_TLS_SOURCE=%s PK3S_CLUSTER_ISSUER_ACTION=%s PK3S_CLUSTER_ISSUER=%s PK3S_ALLOW_HOST_LOCAL_CHANGES=%s PK3S_RANCHER_MANAGE_LOCAL_HOSTS=%s PK3S_REGISTRY_MANAGE_LOCAL_HOSTS=%s PK3S_REGISTRY_TRUST_DOCKER=%s\n' \
+    "${tls_source}" "${cluster_issuer_action}" "${cluster_issuer}" "${allow_host_local_changes}" "${rancher_manage_local_hosts}" "${registry_manage_local_hosts}" "${registry_trust_docker}"
+
+  exec env \
+    PK3S_TLS_SOURCE="${tls_source}" \
+    PK3S_CLUSTER_ISSUER_ACTION="${cluster_issuer_action}" \
+    PK3S_CLUSTER_ISSUER="${cluster_issuer}" \
+    PK3S_ALLOW_HOST_LOCAL_CHANGES="${allow_host_local_changes}" \
+    PK3S_RANCHER_MANAGE_LOCAL_HOSTS="${rancher_manage_local_hosts}" \
+    PK3S_REGISTRY_MANAGE_LOCAL_HOSTS="${registry_manage_local_hosts}" \
+    PK3S_REGISTRY_TRUST_DOCKER="${registry_trust_docker}" \
+    bash "${REPO_DIR}/tests/common.sh" test-live-matrix
+}
+
 case "${1:-help}" in
   docs-build)
     exec bash "${REPO_DIR}/docs/build.sh"
@@ -86,7 +109,7 @@ case "${1:-help}" in
         ;;
       test-live-matrix)
         clean_named_suite_artifacts live test-live-matrix
-        exec bash "${REPO_DIR}/tests/run-suite-with-artifact.sh" live test-live-matrix bash "${REPO_DIR}/tests/common.sh" test-live-matrix
+        exec bash "${REPO_DIR}/tests/run-suite-with-artifact.sh" live test-live-matrix bash "${REPO_DIR}/scripts/productive-k3s-addons-dev.sh" test-live-matrix-raw
         ;;
       test-live-matrix-ubuntu24)
         clean_named_suite_artifacts live test-live-matrix-ubuntu24
@@ -96,6 +119,9 @@ case "${1:-help}" in
         exec bash "${REPO_DIR}/tests/common.sh" "$@"
         ;;
     esac
+    ;;
+  test-live-matrix-raw)
+    run_live_matrix_with_defaults
     ;;
   -h|--help|help)
     usage

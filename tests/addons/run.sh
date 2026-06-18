@@ -36,7 +36,12 @@ case "${LEVEL}" in
     if [[ -n "${PK3S_ADDON_PUBLIC_HOST:-}" ]]; then
       cmd+=(--public-host "${PK3S_ADDON_PUBLIC_HOST}")
     fi
-    (cd "${CORE_REPO_DIR}" && "${cmd[@]}")
+    (
+      cd "${CORE_REPO_DIR}" && \
+      PK3S_KUBECTL_MODE="kubectl" \
+      PK3S_KUBECTL_BIN="${PK3S_KUBECTL_BIN:-kubectl}" \
+      "${cmd[@]}"
+    )
     ;;
   *)
     printf '[FAIL] unsupported addon test level: %s\n' "${LEVEL}" >&2
