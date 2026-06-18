@@ -86,6 +86,7 @@ prepare_core_source() {
 
 stage_addons_repo() {
   TRANSFER_STAGING_DIR="$(mktemp -d)"
+  log "Staging addon repository from ${REPO_DIR}"
   tar \
     --exclude='.git' \
     --exclude='test-artifacts' \
@@ -110,6 +111,10 @@ launch_core_vm() {
 
 copy_addons_repo_to_vm() {
   log "Preparing addon repository inside VM ${VM_NAME}"
+  [[ -f "${TRANSFER_STAGING_DIR}/productive-k3s-addons.tar.gz" ]] || {
+    err "staged addon archive not found: ${TRANSFER_STAGING_DIR}/productive-k3s-addons.tar.gz"
+    exit 1
+  }
   multipass exec "${VM_NAME}" -- bash -lc "rm -rf '${REMOTE_ADDONS_DIR}' && mkdir -p '${REMOTE_HOME}/.kube'"
   multipass transfer "${TRANSFER_STAGING_DIR}/productive-k3s-addons.tar.gz" "${VM_NAME}:${REMOTE_HOME}/productive-k3s-addons.tar.gz"
   multipass exec "${VM_NAME}" -- bash -lc "
@@ -152,8 +157,8 @@ copy_remote_artifacts_back() {
 
 need_cmd multipass
 prepare_core_source
-stage_addons_repo
 launch_core_vm
+stage_addons_repo
 copy_addons_repo_to_vm
 prepare_remote_kubeconfig
 run_live_matrix_inside_vm
