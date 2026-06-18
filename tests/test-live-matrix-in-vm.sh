@@ -145,6 +145,9 @@ run_live_matrix_inside_vm() {
     PRODUCTIVE_K3S_CORE_REPO_DIR='${REMOTE_CORE_DIR}' \
     KUBECONFIG='${REMOTE_KUBECONFIG}' \
     PK3S_KUBE_CONTEXT='' \
+    PK3S_TLS_SOURCE='secret' \
+    PK3S_CLUSTER_ISSUER_ACTION='install' \
+    PK3S_CLUSTER_ISSUER='selfsigned-issuer' \
     PK3S_ADDON_PUBLIC_HOST='${PK3S_ADDON_PUBLIC_HOST:-}' \
     bash ./tests/common.sh test-live-matrix
   "
