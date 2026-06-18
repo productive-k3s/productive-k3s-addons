@@ -109,6 +109,8 @@ launch_core_vm() {
       --image 24.04 \
       --profile core \
       --name "${VM_NAME}" \
+      --remote-user "${REMOTE_USER}" \
+      --remote-dir "${REMOTE_CORE_DIR}" \
       --keep-vm
 }
 
