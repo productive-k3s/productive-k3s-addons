@@ -25,7 +25,9 @@ Artifacts and status helpers:
 make -C tests test-checkstatus-local
 make -C tests test-checkstatus-matrix
 make -C tests test-checkstatus-live
+make -C tests test-clean-vms
 make -C tests test-clean-artifacts
+make -C tests test-clean-all
 ```
 
 Use detailed targets from inside `tests/`:
@@ -36,7 +38,13 @@ make -C tests test-static ADDON=nginx
 make -C tests test-contract ADDON=nginx
 make -C tests test-live ADDON=nginx KUBECONFIG=~/.kube/config
 make -C tests test-runtime-contract
+make -C tests test-live-matrix-ubuntu24 PRODUCTIVE_K3S_CORE_REPO_DIR=/path/to/productive-k3s-core
 ```
+
+`test-live-matrix-ubuntu24` uses the existing `productive-k3s-core` Multipass harness to bootstrap a clean Ubuntu 24.04 VM, then runs the add-on live matrix inside that VM. It requires:
+
+- `PRODUCTIVE_K3S_CORE_REPO_DIR`
+- `multipass`
 
 `make test-all` is the local safe entrypoint:
 

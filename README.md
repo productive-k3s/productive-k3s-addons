@@ -127,6 +127,9 @@ Detailed targets live under `tests/`:
 - `make -C tests test-static`
 - `make -C tests test-contract`
 - `make -C tests test-live`
+- `make -C tests test-live-matrix-ubuntu24`
+- `make -C tests test-clean-vms`
+- `make -C tests test-clean-artifacts`
 
 Cross-testing follows the same pattern used by `productive-k3s-profiles`:
 

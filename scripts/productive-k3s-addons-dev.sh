@@ -15,6 +15,8 @@ Commands:
   docs-down
   docs-clean
   test-clean-artifacts
+  test-clean-vms
+  test-clean-all
   test-checkstatus-local
   test-checkstatus-matrix
   test-checkstatus-live
@@ -24,6 +26,7 @@ Commands:
   test-live
   test-matrix
   test-live-matrix
+  test-live-matrix-ubuntu24
 EOF
 }
 
@@ -51,6 +54,12 @@ case "${1:-help}" in
   test-clean-artifacts)
     exec bash "${REPO_DIR}/tests/clean-test-artifacts.sh"
     ;;
+  test-clean-vms)
+    exec bash "${REPO_DIR}/tests/clean-test-vms.sh"
+    ;;
+  test-clean-all)
+    exec bash "${REPO_DIR}/tests/clean-test-state.sh"
+    ;;
   test-checkstatus-local)
     exec bash "${REPO_DIR}/tests/check-test-status.sh" --category local
     ;;
@@ -69,7 +78,7 @@ case "${1:-help}" in
       bash "${REPO_DIR}/scripts/validate-addon-package.sh" "${REPO_DIR}" && \
       bash "${REPO_DIR}/tests/common.sh" test-contract
     ;;
-  test-static|test-contract|test-live|test-matrix|test-live-matrix)
+  test-static|test-contract|test-live|test-matrix|test-live-matrix|test-live-matrix-ubuntu24)
     case "$1" in
       test-matrix)
         clean_named_suite_artifacts matrix test-matrix
@@ -78,6 +87,10 @@ case "${1:-help}" in
       test-live-matrix)
         clean_named_suite_artifacts live test-live-matrix
         exec bash "${REPO_DIR}/tests/run-suite-with-artifact.sh" live test-live-matrix bash "${REPO_DIR}/tests/common.sh" test-live-matrix
+        ;;
+      test-live-matrix-ubuntu24)
+        clean_named_suite_artifacts live test-live-matrix-ubuntu24
+        exec bash "${REPO_DIR}/tests/run-suite-with-artifact.sh" live test-live-matrix-ubuntu24 bash "${REPO_DIR}/tests/test-live-matrix-in-vm.sh"
         ;;
       *)
         exec bash "${REPO_DIR}/tests/common.sh" "$@"
