@@ -20,7 +20,13 @@ MANAGE_LOCAL_HOSTS="${PK3S_RANCHER_MANAGE_LOCAL_HOSTS:-n}"
 INGRESS_CLASS_NAME="${PK3S_INGRESS_CLASS_NAME:-traefik}"
 
 kctl() {
-  pk3s_addon_kubectl "$@"
+  if declare -F pk3s_addon_kubectl >/dev/null 2>&1; then
+    pk3s_addon_kubectl "$@"
+  elif declare -F pk3s_runtime_kubectl >/dev/null 2>&1; then
+    pk3s_runtime_kubectl "$@"
+  else
+    "${KUBECTL_BIN}" "$@"
+  fi
 }
 
 wait_secret() {
