@@ -11,14 +11,22 @@ Current levels:
 - `contract`: validation against a selected `productive-k3s-core` engine
 - `live`: manual package-first install checks
 
-Use the repository root targets:
+Use the root entrypoints for the main flows:
 
 ```bash
 make test-all
-make test-static ADDON=nginx
-make test-contract ADDON=nginx
-make test-live ADDON=nginx KUBECONFIG=~/.kube/config
 make test-matrix
+make test-live-matrix
+```
+
+Use detailed targets from inside `tests/`:
+
+```bash
+make -C tests validate-layout
+make -C tests test-static ADDON=nginx
+make -C tests test-contract ADDON=nginx
+make -C tests test-live ADDON=nginx KUBECONFIG=~/.kube/config
+make -C tests test-runtime-contract
 ```
 
 `make test-all` is the local safe entrypoint:
@@ -33,5 +41,5 @@ When validating stack content before the next Core release is published, point t
 
 ```bash
 make test-matrix CORE_VERSION=development
-make test-contract STACK=base PRODUCTIVE_K3S_CORE_REPO_DIR=../productive-k3s-core
+make -C tests test-contract STACK=base PRODUCTIVE_K3S_CORE_REPO_DIR=../productive-k3s-core
 ```

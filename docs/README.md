@@ -26,6 +26,7 @@ Build the site:
 ```bash
 ./docs/build.sh
 make docs-build
+make -C docs docs-build
 ```
 
 Serve the site locally:
@@ -33,18 +34,19 @@ Serve the site locally:
 ```bash
 ./docs/serve.sh
 make docs-serve
+make -C docs docs-serve
 ```
 
 Background mode:
 
 ```bash
-make docs-up
-make docs-down
+make -C docs docs-up
+make -C docs docs-down
 ```
 
 Full cleanup:
 
 ```bash
 ./docs/clean.sh
-make docs-clean
+make -C docs docs-clean
 ```

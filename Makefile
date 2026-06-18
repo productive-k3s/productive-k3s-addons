@@ -1,6 +1,7 @@
-.PHONY: help docs-build docs-serve docs-up docs-down docs-clean test-all test-static test-contract test-live test-matrix test-live-matrix validate-layout
+.PHONY: help docs-build docs-serve test-all test-matrix test-live-matrix
 
-SCRIPTS_DIR := $(abspath $(dir $(lastword $(MAKEFILE_LIST))))/scripts
+TESTS_DIR := ./tests
+DOCS_DIR := ./docs
 
 help:
 	@echo "Productive K3S Addons"
@@ -8,48 +9,30 @@ help:
 	@echo "Targets:"
 	@echo "  make docs-build                             Build documentation"
 	@echo "  make docs-serve                             Serve documentation in foreground"
-	@echo "  make docs-up                                Alias for docs-serve"
-	@echo "  make docs-down                              Clean generated docs artifacts"
-	@echo "  make docs-clean                             Remove docs virtualenv and site/"
-	@echo "  make validate-layout                         Validate addon/stack source layout"
-	@echo "  make test-all                               Run local non-live checks (layout + static + contract)"
-	@echo "  make test-static ADDON=<name>|STACK=<name>   Run repository static checks"
-	@echo "  make test-contract ADDON=<name>|STACK=<name> Validate content against productive-k3s-core"
-	@echo "  make test-live ADDON=<name>                  Install a packaged addon through productive-k3s-core"
-	@echo "  make test-matrix                             Run static + contract across all addons and stacks"
-	@echo "  make test-live-matrix                        Run live validation across discovered addons and stacks"
+	@echo "  make test-all                               Run local non-live checks"
+	@echo "  make test-matrix                            Run static + contract across all addons and stacks"
+	@echo "  make test-live-matrix                       Run live validation across discovered addons and stacks"
+	@echo ""
+	@echo "Detailed docs targets live under docs/:"
+	@echo "  make -C docs docs-up | docs-down | docs-clean"
+	@echo ""
+	@echo "Detailed test targets live under tests/:"
+	@echo "  make -C tests validate-layout"
+	@echo "  make -C tests test-static ADDON=<name>|STACK=<name>"
+	@echo "  make -C tests test-contract ADDON=<name>|STACK=<name>"
+	@echo "  make -C tests test-live ADDON=<name>|STACK=<name>"
 
 docs-build:
-	$(SCRIPTS_DIR)/productive-k3s-addons-dev.sh docs-build
+	$(MAKE) -C $(DOCS_DIR) docs-build
 
 docs-serve:
-	$(SCRIPTS_DIR)/productive-k3s-addons-dev.sh docs-serve
+	$(MAKE) -C $(DOCS_DIR) docs-serve
 
-docs-up:
-	$(SCRIPTS_DIR)/productive-k3s-addons-dev.sh docs-up
-
-docs-down:
-	$(SCRIPTS_DIR)/productive-k3s-addons-dev.sh docs-down
-
-docs-clean:
-	$(SCRIPTS_DIR)/productive-k3s-addons-dev.sh docs-clean
-
-validate-layout:
-	@bash $(SCRIPTS_DIR)/validate-addon-package.sh .
-
-test-all: validate-layout test-static test-contract
-
-test-static:
-	ADDON="$(ADDON)" STACK="$(STACK)" CORE_VERSION="$(CORE_VERSION)" PRODUCTIVE_K3S_CORE_REPO_DIR="$(PRODUCTIVE_K3S_CORE_REPO_DIR)" PRODUCTIVE_K3S_CORE_REPO_URL="$(PRODUCTIVE_K3S_CORE_REPO_URL)" PRODUCTIVE_K3S_CORE_REPO_REF="$(PRODUCTIVE_K3S_CORE_REPO_REF)" $(SCRIPTS_DIR)/productive-k3s-addons-dev.sh test-static
-
-test-contract:
-	ADDON="$(ADDON)" STACK="$(STACK)" CORE_VERSION="$(CORE_VERSION)" PRODUCTIVE_K3S_CORE_REPO_DIR="$(PRODUCTIVE_K3S_CORE_REPO_DIR)" PRODUCTIVE_K3S_CORE_REPO_URL="$(PRODUCTIVE_K3S_CORE_REPO_URL)" PRODUCTIVE_K3S_CORE_REPO_REF="$(PRODUCTIVE_K3S_CORE_REPO_REF)" $(SCRIPTS_DIR)/productive-k3s-addons-dev.sh test-contract
-
-test-live:
-	ADDON="$(ADDON)" STACK="$(STACK)" CORE_VERSION="$(CORE_VERSION)" PRODUCTIVE_K3S_CORE_REPO_DIR="$(PRODUCTIVE_K3S_CORE_REPO_DIR)" PRODUCTIVE_K3S_CORE_REPO_URL="$(PRODUCTIVE_K3S_CORE_REPO_URL)" PRODUCTIVE_K3S_CORE_REPO_REF="$(PRODUCTIVE_K3S_CORE_REPO_REF)" KUBECONFIG="$(KUBECONFIG)" PK3S_KUBE_CONTEXT="$(PK3S_KUBE_CONTEXT)" PK3S_ADDON_PUBLIC_HOST="$(PK3S_ADDON_PUBLIC_HOST)" $(SCRIPTS_DIR)/productive-k3s-addons-dev.sh test-live
+test-all:
+	$(MAKE) -C $(TESTS_DIR) test-all
 
 test-matrix:
-	CORE_VERSION="$(CORE_VERSION)" PRODUCTIVE_K3S_CORE_REPO_DIR="$(PRODUCTIVE_K3S_CORE_REPO_DIR)" PRODUCTIVE_K3S_CORE_REPO_URL="$(PRODUCTIVE_K3S_CORE_REPO_URL)" PRODUCTIVE_K3S_CORE_REPO_REF="$(PRODUCTIVE_K3S_CORE_REPO_REF)" $(SCRIPTS_DIR)/productive-k3s-addons-dev.sh test-matrix
+	$(MAKE) -C $(TESTS_DIR) test-matrix
 
 test-live-matrix:
-	CORE_VERSION="$(CORE_VERSION)" PRODUCTIVE_K3S_CORE_REPO_DIR="$(PRODUCTIVE_K3S_CORE_REPO_DIR)" PRODUCTIVE_K3S_CORE_REPO_URL="$(PRODUCTIVE_K3S_CORE_REPO_URL)" PRODUCTIVE_K3S_CORE_REPO_REF="$(PRODUCTIVE_K3S_CORE_REPO_REF)" KUBECONFIG="$(KUBECONFIG)" PK3S_KUBE_CONTEXT="$(PK3S_KUBE_CONTEXT)" PK3S_ADDON_PUBLIC_HOST="$(PK3S_ADDON_PUBLIC_HOST)" $(SCRIPTS_DIR)/productive-k3s-addons-dev.sh test-live-matrix
+	$(MAKE) -C $(TESTS_DIR) test-live-matrix

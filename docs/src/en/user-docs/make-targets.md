@@ -3,12 +3,18 @@
 Repository-level commands:
 
 ```bash
-make validate-layout
 make test-all
-make test-static ADDON=<name>
-make test-contract ADDON=<name>
-make test-live ADDON=<name> KUBECONFIG=~/.kube/config
 make test-matrix
+make test-live-matrix
+```
+
+Detailed test targets live under `tests/`:
+
+```bash
+make -C tests validate-layout
+make -C tests test-static ADDON=<name>
+make -C tests test-contract ADDON=<name>
+make -C tests test-live ADDON=<name> KUBECONFIG=~/.kube/config
 ```
 
 `make test-all` is the local non-live entrypoint and runs:

@@ -14,8 +14,10 @@ Alcance manual:
 Comandos típicos:
 
 ```bash
-make test-static ADDON=nginx PRODUCTIVE_K3S_CORE_REPO_DIR=/ruta/a/productive-k3s-core
-make test-contract STACK=base PRODUCTIVE_K3S_CORE_REPO_DIR=/ruta/a/productive-k3s-core
-make test-live ADDON=nginx KUBECONFIG=~/.kube/config
+make test-all PRODUCTIVE_K3S_CORE_REPO_DIR=/ruta/a/productive-k3s-core
 make test-matrix PRODUCTIVE_K3S_CORE_REPO_DIR=/ruta/a/productive-k3s-core
+make test-live-matrix PRODUCTIVE_K3S_CORE_REPO_DIR=/ruta/a/productive-k3s-core
+make -C tests test-static ADDON=nginx PRODUCTIVE_K3S_CORE_REPO_DIR=/ruta/a/productive-k3s-core
+make -C tests test-contract STACK=base PRODUCTIVE_K3S_CORE_REPO_DIR=/ruta/a/productive-k3s-core
+make -C tests test-live ADDON=nginx KUBECONFIG=~/.kube/config
 ```
