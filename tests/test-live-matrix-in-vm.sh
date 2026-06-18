@@ -85,7 +85,10 @@ prepare_core_source() {
 }
 
 stage_addons_repo() {
-  TRANSFER_STAGING_DIR="$(mktemp -d)"
+  local staging_parent
+  staging_parent="${HOME}/pk3s-transfer-staging"
+  mkdir -p "${staging_parent}"
+  TRANSFER_STAGING_DIR="$(mktemp -d "${staging_parent}/staging.XXXXXX")"
   log "Staging addon repository from ${REPO_DIR}"
   tar \
     --exclude='.git' \
