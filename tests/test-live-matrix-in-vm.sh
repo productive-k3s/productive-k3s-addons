@@ -144,7 +144,7 @@ run_live_matrix_inside_vm() {
     KUBECONFIG='${REMOTE_KUBECONFIG}' \
     PK3S_KUBE_CONTEXT='' \
     PK3S_ADDON_PUBLIC_HOST='${PK3S_ADDON_PUBLIC_HOST:-}' \
-    make test-live-matrix
+    bash ./tests/common.sh test-live-matrix
   "
 }
 
