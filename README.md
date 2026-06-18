@@ -119,6 +119,7 @@ Current workflow:
 - `make test-all`: local non-live checks (`validate-layout + test-static + test-contract`)
 - `make test-matrix`: run `static + contract` across all discovered add-ons and stacks
 - `make test-live-matrix`: run live install validation across all discovered add-ons and stacks
+- `make -C tests test-checkstatus-local|matrix|live`: summarize the latest recorded suite results
 
 Detailed targets live under `tests/`:
 

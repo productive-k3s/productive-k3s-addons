@@ -19,6 +19,15 @@ make test-matrix
 make test-live-matrix
 ```
 
+Artifacts and status helpers:
+
+```bash
+make -C tests test-checkstatus-local
+make -C tests test-checkstatus-matrix
+make -C tests test-checkstatus-live
+make -C tests test-clean-artifacts
+```
+
 Use detailed targets from inside `tests/`:
 
 ```bash

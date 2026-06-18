@@ -8,3 +8,4 @@ docs/.venv/
 docs/site/
 docs/.mkdocs.log
 docs/.mkdocs.pid
+test-artifacts/

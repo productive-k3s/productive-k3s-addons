@@ -3,12 +3,15 @@ SHELL := /bin/bash
 DEV_WRAPPER := ../scripts/productive-k3s-addons-dev.sh
 SCRIPTS_DIR := ../scripts
 
-.PHONY: test-all test-static test-contract test-live test-matrix test-live-matrix validate-layout test-runtime-contract test-package-layout
+.PHONY: test-all test-all-raw test-static test-contract test-live test-matrix test-live-matrix validate-layout test-runtime-contract test-package-layout test-checkstatus-local test-checkstatus-matrix test-checkstatus-live test-clean-artifacts
 
 validate-layout:
 	bash $(SCRIPTS_DIR)/validate-addon-package.sh ..
 
-test-all: validate-layout test-static test-contract
+test-all:
+	bash $(DEV_WRAPPER) test-all
+
+test-all-raw: validate-layout test-static test-contract
 
 test-static:
 	ADDON="$(ADDON)" STACK="$(STACK)" CORE_VERSION="$(CORE_VERSION)" PRODUCTIVE_K3S_CORE_REPO_DIR="$(PRODUCTIVE_K3S_CORE_REPO_DIR)" PRODUCTIVE_K3S_CORE_REPO_URL="$(PRODUCTIVE_K3S_CORE_REPO_URL)" PRODUCTIVE_K3S_CORE_REPO_REF="$(PRODUCTIVE_K3S_CORE_REPO_REF)" bash $(DEV_WRAPPER) test-static
@@ -30,3 +33,15 @@ test-runtime-contract:
 
 test-package-layout:
 	PRODUCTIVE_K3S_CORE_REPO_DIR="$(PRODUCTIVE_K3S_CORE_REPO_DIR)" bash ./test-validate-addon-package.sh
+
+test-checkstatus-local:
+	bash $(DEV_WRAPPER) test-checkstatus-local
+
+test-checkstatus-matrix:
+	bash $(DEV_WRAPPER) test-checkstatus-matrix
+
+test-checkstatus-live:
+	bash $(DEV_WRAPPER) test-checkstatus-live
+
+test-clean-artifacts:
+	bash $(DEV_WRAPPER) test-clean-artifacts
