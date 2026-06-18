@@ -39,11 +39,12 @@ make -C tests test-contract ADDON=nginx
 make -C tests test-live ADDON=nginx KUBECONFIG=~/.kube/config
 make -C tests test-runtime-contract
 make -C tests test-live-matrix-ubuntu24 PRODUCTIVE_K3S_CORE_REPO_DIR=/path/to/productive-k3s-core
+make -C tests test-live-matrix-ubuntu24 PRODUCTIVE_K3S_CORE_REPO_URL=https://github.com/jemacchi/productive-k3s-core.git PRODUCTIVE_K3S_CORE_REPO_REF=development
 ```
 
 `test-live-matrix-ubuntu24` uses the existing `productive-k3s-core` Multipass harness to bootstrap a clean Ubuntu 24.04 VM, then runs the add-on live matrix inside that VM. It requires:
 
-- `PRODUCTIVE_K3S_CORE_REPO_DIR`
+- `PRODUCTIVE_K3S_CORE_REPO_DIR` or `PRODUCTIVE_K3S_CORE_REPO_URL` + `PRODUCTIVE_K3S_CORE_REPO_REF`
 - `multipass`
 
 `make test-all` is the local safe entrypoint:

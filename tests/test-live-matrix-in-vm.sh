@@ -15,6 +15,7 @@ REMOTE_ADDONS_DIR="${LIVE_MATRIX_ADDONS_REMOTE_DIR:-${REMOTE_HOME}/productive-k3
 REMOTE_KUBECONFIG="${LIVE_MATRIX_REMOTE_KUBECONFIG:-${REMOTE_HOME}/.kube/config}"
 KEEP_VM="${KEEP_VM:-n}"
 TRANSFER_STAGING_DIR=""
+TEMP_CORE_DIR=""
 
 log() {
   printf '[INFO] %s\n' "$1"
@@ -27,6 +28,9 @@ err() {
 cleanup() {
   if [[ -n "${TRANSFER_STAGING_DIR}" && -d "${TRANSFER_STAGING_DIR}" ]]; then
     rm -rf "${TRANSFER_STAGING_DIR}"
+  fi
+  if [[ -n "${TEMP_CORE_DIR}" && -d "${TEMP_CORE_DIR}" ]]; then
+    rm -rf "${TEMP_CORE_DIR}"
   fi
   if [[ "${KEEP_VM}" != "y" ]]; then
     bash "${REPO_DIR}/tests/clean-test-vms.sh" "${VM_NAME}" >/dev/null 2>&1 || true
@@ -43,17 +47,41 @@ need_cmd() {
   }
 }
 
+resolve_latest_core_release() {
+  need_cmd curl
+  need_cmd jq
+  curl -fsSL "https://api.github.com/repos/jemacchi/productive-k3s-core/releases/latest" | jq -r '.tag_name // empty'
+}
+
 prepare_core_source() {
   if [[ -n "${CORE_REPO_DIR}" ]]; then
     [[ -f "${CORE_REPO_DIR}/productive-k3s-core.sh" && -d "${CORE_REPO_DIR}/tests" ]] || {
       err "invalid PRODUCTIVE_K3S_CORE_REPO_DIR: ${CORE_REPO_DIR}"
       exit 1
     }
+    log "Using productive-k3s-core from directory: ${CORE_REPO_DIR}"
     return 0
   fi
 
-  err "test-live-matrix-in-vm requires PRODUCTIVE_K3S_CORE_REPO_DIR; cloning Core inside this wrapper is intentionally unsupported"
-  exit 1
+  local ref="${CORE_VERSION:-${CORE_REPO_REF:-}}"
+  local url="${CORE_REPO_URL:-https://github.com/jemacchi/productive-k3s-core.git}"
+
+  if [[ -z "${ref}" ]]; then
+    ref="$(resolve_latest_core_release)"
+    [[ -n "${ref}" ]] || {
+      err "could not resolve latest productive-k3s-core release"
+      exit 1
+    }
+  fi
+
+  need_cmd git
+  TEMP_CORE_DIR="$(mktemp -d)"
+  log "Cloning productive-k3s-core from URL: ${url} (ref: ${ref})"
+  git clone --depth 1 --branch "${ref}" "${url}" "${TEMP_CORE_DIR}" >/dev/null 2>&1 || {
+    err "could not clone productive-k3s-core ref ${ref} from ${url}"
+    exit 1
+  }
+  CORE_REPO_DIR="${TEMP_CORE_DIR}"
 }
 
 stage_addons_repo() {
