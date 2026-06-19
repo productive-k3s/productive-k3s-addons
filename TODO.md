@@ -19,13 +19,7 @@ Rules:
 - `Review Addon Source Contracts`
   `Verify that packaged addons expose the metadata and scripts expected by Core, especially for configure, install, validate, and cleanup flows.`
 
-- `Document Source vs Artifact Semantics`
-  `Clarify in repo docs that this repository owns source content, while packaged addon and stack artifacts are generated and published elsewhere.`
-
 ## Content Validation
-
-- `Add Stack Source Validation Helpers`
-  `Provide simple repo-local validation helpers so broken stack manifests or duplicate addon references are caught before packaging time.`
 
 - `Centralize GitHub Owner and Core Release Source`
   `Replace hardcoded jemacchi URLs with repo-local defaults in tests/common.sh and docs/mkdocs.yml so Core release lookup and repo links do not depend on a personal namespace.`
