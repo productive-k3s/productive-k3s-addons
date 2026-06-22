@@ -50,6 +50,19 @@ wait_secret() {
   return 1
 }
 
+wait_namespace() {
+  local namespace="$1"
+  local deadline=$((SECONDS + 60))
+  while (( SECONDS < deadline )); do
+    if kctl get namespace "${namespace}" >/dev/null 2>&1; then
+      return 0
+    fi
+    sleep 2
+  done
+  printf 'timed out waiting for namespace: %s\n' "${namespace}" >&2
+  return 1
+}
+
 wait_certificate_ready() {
   local namespace="$1"
   local certificate="$2"
@@ -69,7 +82,13 @@ existing_pvc_storage_class() {
 }
 
 pk3s_addon_install() {
-  kctl create namespace registry >/dev/null 2>&1 || true
+  kctl apply -f - <<EOF
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: registry
+EOF
+  wait_namespace registry
 
   if [[ "${TLS_SOURCE}" == "secret" ]]; then
     kctl apply -f - <<EOF
