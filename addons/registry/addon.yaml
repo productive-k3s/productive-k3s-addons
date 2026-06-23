@@ -1,0 +1,25 @@
+apiVersion: addons.productive-k3s.io/v1
+kind: Addon
+metadata:
+  name: registry
+  version: 0.1.0
+  category: platform
+spec:
+  type: shell
+  impact:
+    cluster: true
+    host: true
+    summary: "Installs an in-cluster registry and can optionally configure local /etc/hosts and Docker trust on the host."
+    hostCapabilities:
+      - etc-hosts
+      - docker-registry-trust
+  configure:
+    script: scripts/configure.sh
+  install:
+    script: scripts/install.sh
+  validate:
+    script: scripts/validate.sh
+  clean:
+    script: scripts/clean.sh
+  backup:
+    script: scripts/backup.sh

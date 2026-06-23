@@ -1,0 +1,30 @@
+apiVersion: addons.productive-k3s.io/v1
+kind: Addon
+metadata:
+  name: nginx
+  version: 0.1.0
+  category: example
+spec:
+  type: helm
+  impact:
+    cluster: true
+    host: false
+    summary: "Installs a simple nginx workload exposed through the cluster ingress."
+  configure:
+    script: scripts/configure.sh
+  install:
+    script: scripts/install.sh
+  validate:
+    script: scripts/validate.sh
+  clean:
+    script: scripts/clean.sh
+  backup:
+    script: scripts/backup.sh
+  productiveK3s:
+    exposure:
+      public:
+        mode: ingress
+        namespace: pk3s-nginx
+        service:
+          name: pk3s-nginx
+          port: 80

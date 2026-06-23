@@ -1,0 +1,92 @@
+site_name: Productive K3S Addons
+site_description: Public add-on and stack source documentation for Productive K3S.
+site_author: Productive K3S Addons
+site_url: https://addons.productive-k3s.io/
+repo_url: https://github.com/productive-k3s/productive-k3s-addons
+repo_name: GitHub
+edit_uri: edit/main/docs/src/
+docs_dir: src
+site_dir: site
+
+theme:
+  name: material
+  custom_dir: src/overrides
+  language: en
+  favicon: assets/images/favicon.ico
+  features:
+    - navigation.tabs
+    - navigation.indexes
+    - navigation.sections
+    - navigation.expand
+    - navigation.footer
+    - navigation.top
+    - toc.follow
+    - search.suggest
+    - search.highlight
+    - content.code.copy
+  palette:
+    - scheme: default
+      primary: white
+      accent: blue
+  font: false
+  icon:
+    repo: fontawesome/brands/github
+
+extra_css:
+  - assets/stylesheets/extra.css
+
+markdown_extensions:
+  - admonition
+  - attr_list
+  - def_list
+  - footnotes
+  - md_in_html
+  - tables
+  - toc:
+      permalink: true
+      title: On this page
+  - pymdownx.details
+  - pymdownx.highlight:
+      anchor_linenums: true
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.tasklist:
+      custom_checkbox: true
+
+plugins:
+  - search
+
+nav:
+  - Home: index.md
+  - English:
+      - Home: en/index.md
+      - Product:
+          - en/product/index.md
+          - Relationship with Core and Addons Pro: en/product/relationship.md
+      - User docs:
+          - en/user-docs/index.md
+          - Make targets: en/user-docs/make-targets.md
+      - Developer docs:
+          - en/developer-docs/index.md
+          - Project layout: en/developer-docs/guides/project-layout.md
+          - Testing and matrix: en/developer-docs/guides/testing-and-matrix.md
+  - Español:
+      - Inicio: es/index.md
+      - Producto:
+          - es/product/index.md
+          - Relación con Core y Addons Pro: es/product/relationship.md
+      - Documentación para usuarios:
+          - es/user-docs/index.md
+          - Targets de Make: es/user-docs/make-targets.md
+      - Documentación para desarrolladores:
+          - es/developer-docs/index.md
+          - Organización del proyecto: es/developer-docs/guides/project-layout.md
+          - Tests y matriz: es/developer-docs/guides/testing-and-matrix.md
+
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/productive-k3s/productive-k3s-addons

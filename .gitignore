@@ -1,2 +1,11 @@
 docs/superpowers/
 superpowers/
+.tmp/
+.venv/
+site/
+__pycache__/
+docs/.venv/
+docs/site/
+docs/.mkdocs.log
+docs/.mkdocs.pid
+test-artifacts/
