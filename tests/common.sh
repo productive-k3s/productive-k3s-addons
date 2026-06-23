@@ -28,7 +28,7 @@ need_cmd() {
 resolve_latest_core_release() {
   need_cmd curl
   need_cmd jq
-  curl -fsSL "https://api.github.com/repos/jemacchi/productive-k3s-core/releases/latest" | jq -r '.tag_name // empty'
+  curl -fsSL "https://api.github.com/repos/productive-k3s/productive-k3s-core/releases/latest" | jq -r '.tag_name // empty'
 }
 
 prepare_core_checkout() {
@@ -49,7 +49,7 @@ prepare_core_checkout() {
   need_cmd git
   TEMP_CORE_DIR="$(mktemp -d)"
   git clone --depth 1 --branch "${ref}" \
-    "${PRODUCTIVE_K3S_CORE_REPO_URL:-https://github.com/jemacchi/productive-k3s-core.git}" \
+    "${PRODUCTIVE_K3S_CORE_REPO_URL:-https://github.com/productive-k3s/productive-k3s-core.git}" \
     "${TEMP_CORE_DIR}" >/dev/null 2>&1 || fail "could not clone productive-k3s-core ref ${ref}"
   CORE_REPO_DIR="${TEMP_CORE_DIR}"
 }

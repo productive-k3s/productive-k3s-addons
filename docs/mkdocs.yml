@@ -2,7 +2,7 @@ site_name: Productive K3S Addons
 site_description: Public add-on and stack source documentation for Productive K3S.
 site_author: Productive K3S Addons
 site_url: https://addons.productive-k3s.io/
-repo_url: https://github.com/jemacchi/productive-k3s-addons
+repo_url: https://github.com/productive-k3s/productive-k3s-addons
 repo_name: GitHub
 edit_uri: edit/main/docs/src/
 docs_dir: src
@@ -89,4 +89,4 @@ nav:
 extra:
   social:
     - icon: fontawesome/brands/github
-      link: https://github.com/jemacchi/productive-k3s-addons
+      link: https://github.com/productive-k3s/productive-k3s-addons

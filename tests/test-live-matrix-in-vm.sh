@@ -50,7 +50,7 @@ need_cmd() {
 resolve_latest_core_release() {
   need_cmd curl
   need_cmd jq
-  curl -fsSL "https://api.github.com/repos/jemacchi/productive-k3s-core/releases/latest" | jq -r '.tag_name // empty'
+  curl -fsSL "https://api.github.com/repos/productive-k3s/productive-k3s-core/releases/latest" | jq -r '.tag_name // empty'
 }
 
 prepare_core_source() {
@@ -64,7 +64,7 @@ prepare_core_source() {
   fi
 
   local ref="${CORE_VERSION:-${CORE_REPO_REF:-}}"
-  local url="${CORE_REPO_URL:-https://github.com/jemacchi/productive-k3s-core.git}"
+  local url="${CORE_REPO_URL:-https://github.com/productive-k3s/productive-k3s-core.git}"
 
   if [[ -z "${ref}" ]]; then
     ref="$(resolve_latest_core_release)"
