@@ -1,0 +1,17 @@
+apiVersion: stacks.productive-k3s.io/v1alpha1
+kind: Stack
+metadata:
+  name: openship-whoami-redis
+  version: 0.1.0
+spec:
+  generatedBy: productive-k3s-adapters
+  source:
+    type: docker-compose
+    file: adaptations/openship/whoami-redis/compose.yaml
+  addons:
+  - name: web
+    path: addons/web
+    dependsOn:
+    - cache
+  - name: cache
+    path: addons/cache
