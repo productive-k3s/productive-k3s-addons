@@ -1,4 +1,4 @@
-.PHONY: help docs-build docs-serve docs-up docs-down docs-clean test-all test-matrix test-live-matrix test-live-matrix-ubuntu24
+.PHONY: help docs-build docs-serve docs-up docs-down docs-clean test-all test-matrix test-live-matrix test-live-matrix-ubuntu24 test-logs-clean
 
 TESTS_DIR := ./tests
 DOCS_DIR := ./docs
@@ -49,3 +49,6 @@ test-live-matrix:
 
 test-live-matrix-ubuntu24:
 	$(MAKE) -C $(TESTS_DIR) test-live-matrix-ubuntu24
+
+test-logs-clean:
+	$(MAKE) -C $(TESTS_DIR) test-logs-clean

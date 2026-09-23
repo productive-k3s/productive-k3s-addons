@@ -3,7 +3,7 @@ SHELL := /bin/bash
 DEV_WRAPPER := ../scripts/productive-k3s-addons-dev.sh
 SCRIPTS_DIR := ../scripts
 
-.PHONY: test-all test-all-raw test-static test-contract test-live test-matrix test-live-matrix test-live-matrix-ubuntu24 validate-layout test-runtime-contract test-package-layout test-tls-issuer-defaults test-checkstatus-local test-checkstatus-matrix test-checkstatus-live test-clean-artifacts test-clean-vms test-clean-all
+.PHONY: test-all test-all-raw test-static test-contract test-live test-matrix test-live-matrix test-live-matrix-ubuntu24 validate-layout test-runtime-contract test-package-layout test-tls-issuer-defaults test-checkstatus-local test-checkstatus-matrix test-checkstatus-live test-logs-clean test-clean-artifacts test-clean-vms test-clean-all
 
 validate-layout:
 	bash $(SCRIPTS_DIR)/validate-addon-package.sh ..
@@ -51,6 +51,10 @@ test-checkstatus-live:
 
 test-clean-artifacts:
 	bash $(DEV_WRAPPER) test-clean-artifacts
+
+test-logs-clean: test-clean-artifacts
+	rm -rf ../runs ../coverage ../htmlcov ../.pytest_cache ../.coverage coverage htmlcov .pytest_cache .coverage
+	rm -f ../coverage.out ../coverage.txt ../coverage.xml coverage.out coverage.txt coverage.xml
 
 test-clean-vms:
 	bash $(DEV_WRAPPER) test-clean-vms
