@@ -81,6 +81,63 @@ existing_pvc_storage_class() {
   kctl -n registry get pvc registry-data -o jsonpath='{.spec.storageClassName}' 2>/dev/null || true
 }
 
+default_storage_class() {
+  kctl get storageclass -o jsonpath='{range .items[?(@.metadata.annotations.storageclass\.kubernetes\.io/is-default-class=="true")]}{.metadata.name}{"\n"}{end}' 2>/dev/null | head -n1 || true
+}
+
+storage_class_exists() {
+  local storage_class="$1"
+  [[ -n "${storage_class}" ]] || return 1
+  kctl get storageclass "${storage_class}" >/dev/null 2>&1
+}
+
+resolve_registry_storage_class() {
+  if [[ -n "${REGISTRY_STORAGE_CLASS}" ]]; then
+    printf '%s\n' "${REGISTRY_STORAGE_CLASS}"
+    return 0
+  fi
+
+  REGISTRY_STORAGE_CLASS="$(existing_pvc_storage_class)"
+  if [[ -n "${REGISTRY_STORAGE_CLASS}" ]]; then
+    printf '%s\n' "${REGISTRY_STORAGE_CLASS}"
+    return 0
+  fi
+
+  if [[ -n "$(default_storage_class)" ]]; then
+    return 0
+  fi
+
+  if storage_class_exists longhorn-single; then
+    printf 'longhorn-single\n'
+    return 0
+  fi
+
+  if storage_class_exists longhorn; then
+    printf 'longhorn\n'
+    return 0
+  fi
+}
+
+registry_diagnostics() {
+  printf '[INFO] Registry diagnostic snapshot follows.\n' >&2
+  kctl -n registry get pods,pvc,events --sort-by=.lastTimestamp >&2 || true
+  kctl -n registry describe pvc registry-data >&2 || true
+  kctl -n registry describe deployment registry >&2 || true
+}
+
+wait_registry_pvc_bound() {
+  local deadline=$((SECONDS + 600))
+  while (( SECONDS < deadline )); do
+    if kctl -n registry get pvc registry-data -o jsonpath='{.status.phase}' 2>/dev/null | grep -qx 'Bound'; then
+      return 0
+    fi
+    sleep 10
+  done
+  printf 'timed out waiting for PVC readiness: registry/registry-data\n' >&2
+  registry_diagnostics
+  return 1
+}
+
 pk3s_addon_install() {
   kctl apply -f - <<EOF
 apiVersion: v1
@@ -119,13 +176,14 @@ EOF
     printf '%s:%s\n' "${REGISTRY_AUTH_USER}" "${AUTH_HASH}" | kctl create secret generic registry-auth -n registry --from-file=htpasswd=/dev/stdin >/dev/null
   fi
 
-  if [[ -z "${REGISTRY_STORAGE_CLASS}" ]]; then
-    REGISTRY_STORAGE_CLASS="$(existing_pvc_storage_class)"
-  fi
+  REGISTRY_STORAGE_CLASS="$(resolve_registry_storage_class)"
 
   PVC_STORAGE_CLASS_BLOCK=""
   if [[ -n "${REGISTRY_STORAGE_CLASS}" ]]; then
+    pk3s_runtime_log "Using Registry PVC StorageClass '${REGISTRY_STORAGE_CLASS}'."
     PVC_STORAGE_CLASS_BLOCK="  storageClassName: ${REGISTRY_STORAGE_CLASS}"
+  else
+    pk3s_runtime_log "Using cluster default StorageClass for Registry PVC."
   fi
 
   INGRESS_ANNOTATIONS=""
@@ -229,7 +287,11 @@ spec:
                 port:
                   number: 5000
 EOF
-  kctl -n registry rollout status deployment/registry --timeout=10m
+  wait_registry_pvc_bound
+  if ! kctl -n registry rollout status deployment/registry --timeout=10m; then
+    registry_diagnostics
+    return 1
+  fi
 
   if [[ "${MANAGE_LOCAL_HOSTS}" == "y" && -n "${NODE_PRIMARY_IP}" ]]; then
     if ! can_run_optional_host_changes; then
