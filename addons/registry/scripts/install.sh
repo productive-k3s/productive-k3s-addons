@@ -12,6 +12,7 @@ REGISTRY_SIZE="${PK3S_REGISTRY_PVC_SIZE:-20Gi}"
 REGISTRY_STORAGE_CLASS="${PK3S_REGISTRY_STORAGE_CLASS:-}"
 TLS_SOURCE="${PK3S_TLS_SOURCE:-secret}"
 CLUSTER_ISSUER="${PK3S_CLUSTER_ISSUER:-selfsigned}"
+REGISTRY_TLS_WAIT_SECONDS="${PK3S_REGISTRY_TLS_WAIT_SECONDS:-600}"
 REGISTRY_AUTH_ENABLED="${PK3S_REGISTRY_AUTH_ENABLED:-n}"
 REGISTRY_AUTH_USER="${PK3S_REGISTRY_AUTH_USER:-registry}"
 REGISTRY_AUTH_PASSWORD="${PK3S_REGISTRY_AUTH_PASSWORD:-change-me}"
@@ -36,10 +37,20 @@ can_run_optional_host_changes() {
   sudo -n true >/dev/null 2>&1 || [[ -t 0 && -t 1 ]]
 }
 
+registry_tls_diagnostics() {
+  printf '[INFO] Registry TLS diagnostic snapshot follows.\n' >&2
+  kctl get clusterissuer "${CLUSTER_ISSUER}" -o wide >&2 || true
+  kctl describe clusterissuer "${CLUSTER_ISSUER}" >&2 || true
+  kctl -n registry get certificate,certificaterequest,secret,events --sort-by=.lastTimestamp >&2 || true
+  kctl -n registry describe certificate registry-tls >&2 || true
+  kctl -n cert-manager get pods,events --sort-by=.lastTimestamp >&2 || true
+}
+
 wait_secret() {
   local namespace="$1"
   local secret="$2"
-  local deadline=$((SECONDS + 120))
+  local timeout="${3:-120}"
+  local deadline=$((SECONDS + timeout))
   while (( SECONDS < deadline )); do
     if kctl -n "${namespace}" get secret "${secret}" >/dev/null 2>&1; then
       return 0
@@ -66,7 +77,8 @@ wait_namespace() {
 wait_certificate_ready() {
   local namespace="$1"
   local certificate="$2"
-  local deadline=$((SECONDS + 180))
+  local timeout="${3:-180}"
+  local deadline=$((SECONDS + timeout))
   while (( SECONDS < deadline )); do
     if kctl -n "${namespace}" get certificate "${certificate}" -o jsonpath='{.status.conditions[?(@.type=="Ready")].status}' 2>/dev/null | grep -qx 'True'; then
       return 0
@@ -74,6 +86,14 @@ wait_certificate_ready() {
     sleep 5
   done
   printf 'timed out waiting for certificate readiness: %s/%s\n' "${namespace}" "${certificate}" >&2
+  return 1
+}
+
+wait_registry_tls_ready() {
+  if wait_secret registry registry-tls "${REGISTRY_TLS_WAIT_SECONDS}" && wait_certificate_ready registry registry-tls "${REGISTRY_TLS_WAIT_SECONDS}"; then
+    return 0
+  fi
+  registry_tls_diagnostics
   return 1
 }
 
@@ -162,8 +182,7 @@ spec:
   dnsNames:
     - ${REGISTRY_HOST}
 EOF
-    wait_secret registry registry-tls
-    wait_certificate_ready registry registry-tls
+    wait_registry_tls_ready
   fi
 
   if [[ "${REGISTRY_AUTH_ENABLED}" == "y" ]]; then
