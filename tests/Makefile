@@ -3,7 +3,7 @@ SHELL := /bin/bash
 DEV_WRAPPER := ../scripts/productive-k3s-addons-dev.sh
 SCRIPTS_DIR := ../scripts
 
-.PHONY: test-all test-all-raw test-static test-contract test-live test-matrix test-live-matrix test-live-matrix-ubuntu24 validate-layout test-runtime-contract test-package-layout test-tls-issuer-defaults test-registry-storage-class test-checkstatus-local test-checkstatus-matrix test-checkstatus-live test-logs-clean test-clean-artifacts test-clean-vms test-clean-all
+.PHONY: test-all test-all-raw test-static test-contract test-live test-matrix test-live-matrix test-live-matrix-ubuntu24 validate-layout test-runtime-contract test-package-layout test-package-stack test-tls-issuer-defaults test-registry-storage-class test-checkstatus-local test-checkstatus-matrix test-checkstatus-live test-logs-clean test-clean-artifacts test-clean-vms test-clean-all
 
 validate-layout:
 	bash $(SCRIPTS_DIR)/validate-addon-package.sh ..
@@ -11,7 +11,7 @@ validate-layout:
 test-all:
 	bash $(DEV_WRAPPER) test-all
 
-test-all-raw: validate-layout test-tls-issuer-defaults test-registry-storage-class test-static test-contract
+test-all-raw: validate-layout test-package-stack test-tls-issuer-defaults test-registry-storage-class test-static test-contract
 
 test-static:
 	ADDON="$(ADDON)" STACK="$(STACK)" CORE_VERSION="$(CORE_VERSION)" PRODUCTIVE_K3S_CORE_REPO_DIR="$(PRODUCTIVE_K3S_CORE_REPO_DIR)" PRODUCTIVE_K3S_CORE_REPO_URL="$(PRODUCTIVE_K3S_CORE_REPO_URL)" PRODUCTIVE_K3S_CORE_REPO_REF="$(PRODUCTIVE_K3S_CORE_REPO_REF)" bash $(DEV_WRAPPER) test-static
@@ -36,6 +36,9 @@ test-runtime-contract:
 
 test-package-layout:
 	PRODUCTIVE_K3S_CORE_REPO_DIR="$(PRODUCTIVE_K3S_CORE_REPO_DIR)" bash ./test-validate-addon-package.sh
+
+test-package-stack:
+	bash ./test-package-stack.sh
 
 test-tls-issuer-defaults:
 	bash ./test-tls-issuer-defaults.sh
