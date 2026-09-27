@@ -1,4 +1,4 @@
-.PHONY: help docs-build docs-serve docs-up docs-down docs-clean package-stack test-all test-matrix test-live-matrix test-live-matrix-ubuntu24 test-logs-clean
+.PHONY: help docs-build docs-serve docs-up docs-down docs-clean package-stack package-artifacts test-all test-matrix test-live-matrix test-live-matrix-ubuntu24 test-logs-clean
 
 TESTS_DIR := ./tests
 DOCS_DIR := ./docs
@@ -13,6 +13,7 @@ help:
 	@echo "  make docs-down                              Stop background documentation server"
 	@echo "  make docs-clean                             Clean generated documentation state"
 	@echo "  make package-stack STACK=<name> OUTPUT=<tgz> Build a bundled stack artifact"
+	@echo "  make package-artifacts OUTPUT_DIR=<dir>      Build all repository artifacts"
 	@echo "  make test-all                               Run local non-live checks"
 	@echo "  make test-matrix                            Run static + contract across all addons and stacks"
 	@echo "  make test-live-matrix                       Run live validation for the base stack"
@@ -41,6 +42,9 @@ docs-clean:
 
 package-stack:
 	bash ./scripts/package-stack.sh --stack "$(STACK)" --output "$(OUTPUT)"
+
+package-artifacts:
+	bash ./scripts/package-repository.sh --output-dir "$(OUTPUT_DIR)"
 
 test-all:
 	$(MAKE) -C $(TESTS_DIR) test-all
