@@ -2,6 +2,12 @@
 
 `productive-k3s-addons` validates content against a selected `productive-k3s-core` engine.
 
+Naming note:
+
+- `ADDON=nginx` and `STACK=base` select catalog entries from this repository for validation
+- they are not a statement about the public `core` installation contract
+- public `core` add-on installation is artifact-first and expects `addon install --tgz <artifact>`
+
 Default CI scope:
 
 - `static`

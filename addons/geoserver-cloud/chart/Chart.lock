@@ -1,0 +1,9 @@
+dependencies:
+- name: geoservercloud
+  repository: https://camptocamp.github.io/helm-geoserver-cloud
+  version: 3.0.1
+- name: rabbitmq
+  repository: oci://ghcr.io/georchestra/bitnami-helm-charts
+  version: 14.4.0
+digest: sha256:7b9fad6b013eee916df0123269b70fc1baa179b556187e6fadc4e283a608270b
+generated: "2026-09-09T13:18:56.741318449-03:00"

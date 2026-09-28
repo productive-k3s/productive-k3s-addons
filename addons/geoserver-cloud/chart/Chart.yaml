@@ -1,0 +1,14 @@
+apiVersion: v2
+name: pk3s-geoserver-cloud
+description: Productive K3S GeoServer Cloud profile with pgconfig catalog storage and ACL.
+type: application
+version: 0.1.0
+appVersion: "3.0.1.1"
+dependencies:
+  - name: geoservercloud
+    repository: https://camptocamp.github.io/helm-geoserver-cloud
+    version: 3.0.1
+  - name: rabbitmq
+    repository: oci://ghcr.io/georchestra/bitnami-helm-charts
+    version: 14.4.0
+    condition: rabbitmq.enabled

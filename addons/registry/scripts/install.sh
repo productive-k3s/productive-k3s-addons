@@ -11,7 +11,8 @@ REGISTRY_HOST="${PK3S_REGISTRY_HOST:-registry.k3s.lab.internal}"
 REGISTRY_SIZE="${PK3S_REGISTRY_PVC_SIZE:-20Gi}"
 REGISTRY_STORAGE_CLASS="${PK3S_REGISTRY_STORAGE_CLASS:-}"
 TLS_SOURCE="${PK3S_TLS_SOURCE:-secret}"
-CLUSTER_ISSUER="${PK3S_CLUSTER_ISSUER:-selfsigned-issuer}"
+CLUSTER_ISSUER="${PK3S_CLUSTER_ISSUER:-selfsigned}"
+REGISTRY_TLS_WAIT_SECONDS="${PK3S_REGISTRY_TLS_WAIT_SECONDS:-600}"
 REGISTRY_AUTH_ENABLED="${PK3S_REGISTRY_AUTH_ENABLED:-n}"
 REGISTRY_AUTH_USER="${PK3S_REGISTRY_AUTH_USER:-registry}"
 REGISTRY_AUTH_PASSWORD="${PK3S_REGISTRY_AUTH_PASSWORD:-change-me}"
@@ -36,10 +37,20 @@ can_run_optional_host_changes() {
   sudo -n true >/dev/null 2>&1 || [[ -t 0 && -t 1 ]]
 }
 
+registry_tls_diagnostics() {
+  printf '[INFO] Registry TLS diagnostic snapshot follows.\n' >&2
+  kctl get clusterissuer "${CLUSTER_ISSUER}" -o wide >&2 || true
+  kctl describe clusterissuer "${CLUSTER_ISSUER}" >&2 || true
+  kctl -n registry get certificate,certificaterequest,secret,events --sort-by=.lastTimestamp >&2 || true
+  kctl -n registry describe certificate registry-tls >&2 || true
+  kctl -n cert-manager get pods,events --sort-by=.lastTimestamp >&2 || true
+}
+
 wait_secret() {
   local namespace="$1"
   local secret="$2"
-  local deadline=$((SECONDS + 120))
+  local timeout="${3:-120}"
+  local deadline=$((SECONDS + timeout))
   while (( SECONDS < deadline )); do
     if kctl -n "${namespace}" get secret "${secret}" >/dev/null 2>&1; then
       return 0
@@ -66,7 +77,8 @@ wait_namespace() {
 wait_certificate_ready() {
   local namespace="$1"
   local certificate="$2"
-  local deadline=$((SECONDS + 180))
+  local timeout="${3:-180}"
+  local deadline=$((SECONDS + timeout))
   while (( SECONDS < deadline )); do
     if kctl -n "${namespace}" get certificate "${certificate}" -o jsonpath='{.status.conditions[?(@.type=="Ready")].status}' 2>/dev/null | grep -qx 'True'; then
       return 0
@@ -77,8 +89,73 @@ wait_certificate_ready() {
   return 1
 }
 
+wait_registry_tls_ready() {
+  if wait_secret registry registry-tls "${REGISTRY_TLS_WAIT_SECONDS}" && wait_certificate_ready registry registry-tls "${REGISTRY_TLS_WAIT_SECONDS}"; then
+    return 0
+  fi
+  registry_tls_diagnostics
+  return 1
+}
+
 existing_pvc_storage_class() {
   kctl -n registry get pvc registry-data -o jsonpath='{.spec.storageClassName}' 2>/dev/null || true
+}
+
+default_storage_class() {
+  kctl get storageclass -o jsonpath='{range .items[?(@.metadata.annotations.storageclass\.kubernetes\.io/is-default-class=="true")]}{.metadata.name}{"\n"}{end}' 2>/dev/null | head -n1 || true
+}
+
+storage_class_exists() {
+  local storage_class="$1"
+  [[ -n "${storage_class}" ]] || return 1
+  kctl get storageclass "${storage_class}" >/dev/null 2>&1
+}
+
+resolve_registry_storage_class() {
+  if [[ -n "${REGISTRY_STORAGE_CLASS}" ]]; then
+    printf '%s\n' "${REGISTRY_STORAGE_CLASS}"
+    return 0
+  fi
+
+  REGISTRY_STORAGE_CLASS="$(existing_pvc_storage_class)"
+  if [[ -n "${REGISTRY_STORAGE_CLASS}" ]]; then
+    printf '%s\n' "${REGISTRY_STORAGE_CLASS}"
+    return 0
+  fi
+
+  if [[ -n "$(default_storage_class)" ]]; then
+    return 0
+  fi
+
+  if storage_class_exists longhorn-single; then
+    printf 'longhorn-single\n'
+    return 0
+  fi
+
+  if storage_class_exists longhorn; then
+    printf 'longhorn\n'
+    return 0
+  fi
+}
+
+registry_diagnostics() {
+  printf '[INFO] Registry diagnostic snapshot follows.\n' >&2
+  kctl -n registry get pods,pvc,events --sort-by=.lastTimestamp >&2 || true
+  kctl -n registry describe pvc registry-data >&2 || true
+  kctl -n registry describe deployment registry >&2 || true
+}
+
+wait_registry_pvc_bound() {
+  local deadline=$((SECONDS + 600))
+  while (( SECONDS < deadline )); do
+    if kctl -n registry get pvc registry-data -o jsonpath='{.status.phase}' 2>/dev/null | grep -qx 'Bound'; then
+      return 0
+    fi
+    sleep 10
+  done
+  printf 'timed out waiting for PVC readiness: registry/registry-data\n' >&2
+  registry_diagnostics
+  return 1
 }
 
 pk3s_addon_install() {
@@ -105,8 +182,7 @@ spec:
   dnsNames:
     - ${REGISTRY_HOST}
 EOF
-    wait_secret registry registry-tls
-    wait_certificate_ready registry registry-tls
+    wait_registry_tls_ready
   fi
 
   if [[ "${REGISTRY_AUTH_ENABLED}" == "y" ]]; then
@@ -119,13 +195,14 @@ EOF
     printf '%s:%s\n' "${REGISTRY_AUTH_USER}" "${AUTH_HASH}" | kctl create secret generic registry-auth -n registry --from-file=htpasswd=/dev/stdin >/dev/null
   fi
 
-  if [[ -z "${REGISTRY_STORAGE_CLASS}" ]]; then
-    REGISTRY_STORAGE_CLASS="$(existing_pvc_storage_class)"
-  fi
+  REGISTRY_STORAGE_CLASS="$(resolve_registry_storage_class)"
 
   PVC_STORAGE_CLASS_BLOCK=""
   if [[ -n "${REGISTRY_STORAGE_CLASS}" ]]; then
+    pk3s_runtime_log "Using Registry PVC StorageClass '${REGISTRY_STORAGE_CLASS}'."
     PVC_STORAGE_CLASS_BLOCK="  storageClassName: ${REGISTRY_STORAGE_CLASS}"
+  else
+    pk3s_runtime_log "Using cluster default StorageClass for Registry PVC."
   fi
 
   INGRESS_ANNOTATIONS=""
@@ -229,7 +306,11 @@ spec:
                 port:
                   number: 5000
 EOF
-  kctl -n registry rollout status deployment/registry --timeout=10m
+  wait_registry_pvc_bound
+  if ! kctl -n registry rollout status deployment/registry --timeout=10m; then
+    registry_diagnostics
+    return 1
+  fi
 
   if [[ "${MANAGE_LOCAL_HOSTS}" == "y" && -n "${NODE_PRIMARY_IP}" ]]; then
     if ! can_run_optional_host_changes; then

@@ -20,3 +20,13 @@ Supported environment overrides:
 - `PK3S_REGISTRY_AUTH_ENABLED`
 - `PK3S_REGISTRY_AUTH_USER`
 - `PK3S_REGISTRY_AUTH_PASSWORD`
+- `PK3S_REGISTRY_MANAGE_LOCAL_HOSTS`
+- `PK3S_REGISTRY_TRUST_DOCKER`
+- `PK3S_NODE_PRIMARY_IP`
+
+Stack runtime metadata:
+
+- `addon.yaml` declares the Core session values that are mapped into packaged
+  stack installs.
+- The registry password input is marked sensitive in metadata for runtimes that
+  need to redact values in logs or events.

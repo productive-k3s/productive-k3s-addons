@@ -18,6 +18,27 @@ spec:
     script: scripts/configure.sh
   install:
     script: scripts/install.sh
+  productiveK3s:
+    stack:
+      runtime:
+        inputs:
+          - name: PK3S_LONGHORN_VERSION
+            source: PRODUCTIVE_K3S_LONGHORN_VERSION
+          - name: PK3S_LONGHORN_DATA_PATH
+            source: LONGHORN_DATA_PATH
+            default: /data
+          - name: PK3S_LONGHORN_REPLICA_COUNT
+            source: LONGHORN_REPLICA_COUNT
+            default: "1"
+          - name: PK3S_LONGHORN_SINGLE_NODE_MODE
+            source: SINGLE_NODE_LONGHORN_MODE
+            default: "n"
+          - name: PK3S_LONGHORN_MINIMAL_AVAILABLE_PERCENTAGE
+            source: LONGHORN_MINIMAL_AVAILABLE_PERCENTAGE
+            default: "10"
+          - name: PK3S_LONGHORN_MAKE_DEFAULT
+            source: LONGHORN_MAKE_DEFAULT
+            default: "n"
   validate:
     script: scripts/validate.sh
   clean:

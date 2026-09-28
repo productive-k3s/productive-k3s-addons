@@ -1,0 +1,22 @@
+apiVersion: addons.productive-k3s.io/v1
+kind: Addon
+metadata:
+  name: popeye
+  version: 0.1.0
+  category: operations
+spec:
+  type: shell
+  impact:
+    cluster: true
+    host: false
+    summary: "Runs Popeye as a read-only cluster health and configuration analysis Job."
+  configure:
+    script: scripts/configure.sh
+  install:
+    script: scripts/install.sh
+  validate:
+    script: scripts/validate.sh
+  clean:
+    script: scripts/clean.sh
+  backup:
+    script: scripts/backup.sh

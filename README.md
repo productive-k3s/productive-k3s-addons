@@ -24,6 +24,7 @@ Typical examples include cluster capabilities such as:
 - registry
 - management surfaces
 - ingress-facing application extensions
+- cluster health and upgrade-readiness checks
 
 ## Public exposure boundary
 
@@ -96,6 +97,19 @@ The first stack exported from this repository is `stacks/base`, which declarativ
 - `rancher`
 - `registry`
 
+The `stacks/cluster-health` stack adds the first public operations-readiness slice:
+
+- `popeye`
+- `kubent`
+
+The next public stacks add security, GitOps, database, and geospatial paths:
+
+- `cluster-security`: `trivy-operator`, `kyverno`
+- `production-readiness`: `popeye`, `kubent`, `trivy-operator`, `kyverno`
+- `gitops`: `cert-manager`, `argocd`
+- `database`: `longhorn`, `cloudnative-pg`
+- `geospatial`: `geoserver-cloud`
+
 ### `scripts/`
 
 Contains helper scripts used by addons, examples, or development workflows.
@@ -128,7 +142,7 @@ Current workflow:
 
 - `make test-all`: local non-live checks (`validate-layout + test-static + test-contract`)
 - `make test-matrix`: run `static + contract` across all discovered add-ons and stacks
-- `make test-live-matrix`: run live install validation across all discovered add-ons and stacks
+- `make test-live-matrix`: run live install validation for the `base` stack
 - `make -C tests test-checkstatus-local|matrix|live`: summarize the latest recorded suite results
 
 Detailed targets live under `tests/`:
@@ -140,6 +154,12 @@ Detailed targets live under `tests/`:
 - `make -C tests test-live-matrix-ubuntu24`
 - `make -C tests test-clean-vms`
 - `make -C tests test-clean-artifacts`
+
+Important contract split:
+
+- in this repository, `ADDON=<name>` and `STACK=<name>` are test selectors for validating catalog content
+- in `productive-k3s-core`, public add-on installation is package-first and consumes a packaged `.tgz` artifact
+- `core` may still install a named stack such as `base`, but add-on source-name installation is not part of the public `core` contract
 
 Cross-testing follows the same pattern used by `productive-k3s-profiles`:
 
@@ -156,6 +176,7 @@ During coordinated development of new stack contracts, prefer `CORE_VERSION=deve
 Provides the package runtime, installation logic, validation, and cluster lifecycle.
 
 This repository should not depend on `productive-k3s-addons` as source content.
+It consumes packaged add-on artifacts for public add-on installation and treats this repository as the source catalog that produces those artifacts.
 
 ### `productive-k3s-infra`
 

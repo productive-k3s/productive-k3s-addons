@@ -88,6 +88,8 @@ nav:
           - Pruebas y matriz: es/developer-docs/guides/testing-and-matrix.md
 
 extra:
+  pk3s:
+    newsletter_turnstile_site_key: !ENV [NEWSLETTER_TURNSTILE_SITE_KEY, ""]
   social:
     - icon: fontawesome/brands/github
       link: https://github.com/productive-k3s/productive-k3s-addons

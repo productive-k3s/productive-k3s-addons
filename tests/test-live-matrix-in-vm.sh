@@ -139,7 +139,7 @@ prepare_remote_kubeconfig() {
 }
 
 run_live_matrix_inside_vm() {
-  log "Running addon live matrix inside VM ${VM_NAME}"
+  log "Running base stack live matrix inside VM ${VM_NAME}"
   multipass exec "${VM_NAME}" -- bash -lc "
     cd '${REMOTE_ADDONS_DIR}' &&
     PRODUCTIVE_K3S_CORE_REPO_DIR='${REMOTE_CORE_DIR}' \

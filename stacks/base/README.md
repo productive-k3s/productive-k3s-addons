@@ -18,3 +18,6 @@ Current contract notes:
 - source delivery stays declarative and source-oriented with `spec.resolution.mode: catalog`
 - published artifacts are expected to be promoted to bundled delivery by `productive-k3s-ops`
 - runtime compatibility is currently declared for both `k3s` and `rke2`
+- bundled stack execution relies on each addon package declaring
+  `spec.productiveK3s.stack.runtime.inputs`; Core consumes those input mappings
+  generically instead of owning addon-specific environment wiring

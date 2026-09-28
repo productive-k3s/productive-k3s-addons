@@ -19,6 +19,8 @@ make -C tests test-contract ADDON=<name>
 make -C tests test-live ADDON=<name> KUBECONFIG=~/.kube/config
 ```
 
+Here, `ADDON=<name>` is a repository-side selector for catalog validation. It does not mean `productive-k3s-core` installs public add-ons by source name. The public `core` install path remains package-first with `addon install --tgz <artifact>`.
+
 `make test-all` is the local non-live entrypoint and runs:
 
 - `validate-layout`

@@ -125,6 +125,12 @@ run_matrix_levels() {
   fi
 }
 
+run_live_matrix() {
+  local stack="${PK3S_LIVE_MATRIX_STACK:-base}"
+  [[ -d "${REPO_DIR}/stacks/${stack}" ]] || fail "live matrix stack source not found: ${stack}"
+  run_target_level live stack "${stack}"
+}
+
 prepare_core_checkout
 
 case "${1:-}" in
@@ -149,7 +155,7 @@ case "${1:-}" in
     run_matrix_levels static contract
     ;;
   test-live-matrix)
-    run_matrix_levels live
+    run_live_matrix
     ;;
   *)
     fail "unsupported test command: ${1:-}"

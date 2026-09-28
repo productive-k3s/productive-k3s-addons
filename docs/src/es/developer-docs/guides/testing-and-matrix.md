@@ -2,6 +2,12 @@
 
 `productive-k3s-addons` valida contenido contra una versión elegida de `productive-k3s-core`.
 
+Nota sobre nombres:
+
+- `ADDON=nginx` y `STACK=base` seleccionan entradas del catálogo de este repositorio para validación
+- no describen el contrato público de instalación de `core`
+- la instalación pública de add-ons en `core` es artifact-first y espera `addon install --tgz <artifact>`
+
 Alcance default de CI:
 
 - `static`

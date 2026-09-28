@@ -11,6 +11,12 @@ Current levels:
 - `contract`: validation against a selected `productive-k3s-core` engine
 - `live`: manual package-first install checks
 
+Selector note:
+
+- `ADDON=<name>` and `STACK=<name>` select which catalog entry to validate from this repository
+- they do not imply that `productive-k3s-core` installs public add-ons by source name
+- the live `core` add-on contract remains `addon install --tgz <artifact>`
+
 Use the root entrypoints for the main flows:
 
 ```bash
@@ -42,7 +48,9 @@ make -C tests test-live-matrix-ubuntu24 PRODUCTIVE_K3S_CORE_REPO_DIR=/path/to/pr
 make -C tests test-live-matrix-ubuntu24 PRODUCTIVE_K3S_CORE_REPO_URL=https://github.com/productive-k3s/productive-k3s-core.git PRODUCTIVE_K3S_CORE_REPO_REF=development
 ```
 
-`test-live-matrix-ubuntu24` uses the existing `productive-k3s-core` Multipass harness to bootstrap a clean Ubuntu 24.04 VM, then runs the add-on live matrix inside that VM. It requires:
+The live matrix is intentionally limited to the `base` stack. Static and contract matrix checks cover every addon and stack source; live validation keeps the cluster load bounded by installing the core/base path only. Maintainers can override the live stack with `PK3S_LIVE_MATRIX_STACK=<stack-name>` when they explicitly need a different stack.
+
+`test-live-matrix-ubuntu24` uses the existing `productive-k3s-core` Multipass harness to bootstrap a clean Ubuntu 24.04 VM, then runs the base stack live matrix inside that VM. It requires:
 
 - `PRODUCTIVE_K3S_CORE_REPO_DIR` or `PRODUCTIVE_K3S_CORE_REPO_URL` + `PRODUCTIVE_K3S_CORE_REPO_REF`
 - `multipass`

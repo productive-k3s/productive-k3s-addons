@@ -95,6 +95,8 @@ validate_addon_dir() {
     fi
   fi
 
+  validate_addon_stack_runtime_inputs "${addon_dir}/addon.yaml" "${addon_dir}"
+
   while IFS= read -r required_script; do
     [[ -n "${required_script}" ]] || continue
     [[ -f "${addon_dir}/${required_script}" ]] || {
@@ -126,6 +128,108 @@ scripts/validate.sh|pk3s_addon_validate
 scripts/clean.sh|pk3s_addon_clean
 scripts/backup.sh|pk3s_addon_backup
 EOF
+}
+
+validate_addon_stack_runtime_inputs() {
+  local manifest="$1"
+  local addon_dir="$2"
+  local name source value_from default_value required
+
+  while IFS='|' read -r name source value_from default_value required; do
+    [[ -n "${name}" ]] || continue
+    [[ "${name}" =~ ^[A-Za-z_][A-Za-z0-9_]*$ ]] || {
+      echo "Publishable addon source has invalid stack runtime input name '${name}': ${addon_dir}" >&2
+      exit 1
+    }
+    if [[ -n "${source}" && ! "${source}" =~ ^[A-Za-z_][A-Za-z0-9_]*$ ]]; then
+      echo "Publishable addon source has invalid stack runtime input source '${source}' for '${name}': ${addon_dir}" >&2
+      exit 1
+    fi
+    case "${value_from}" in
+      ""|core.clusterIssuerAction|core.tlsSource)
+        ;;
+      *)
+        echo "Publishable addon source has unsupported stack runtime valueFrom '${value_from}' for '${name}': ${addon_dir}" >&2
+        exit 1
+        ;;
+    esac
+    if [[ -z "${source}" && -z "${value_from}" && -z "${default_value}" ]]; then
+      echo "Publishable addon source stack runtime input '${name}' must declare source, valueFrom, or default: ${addon_dir}" >&2
+      exit 1
+    fi
+    case "${required}" in
+      ""|true|false)
+        ;;
+      *)
+        echo "Publishable addon source stack runtime input '${name}' has invalid required value '${required}': ${addon_dir}" >&2
+        exit 1
+        ;;
+    esac
+  done < <(
+    awk '
+      function trim(value) {
+        sub(/^[[:space:]]+/, "", value)
+        sub(/[[:space:]]+$/, "", value)
+        if (value ~ /^".*"$/) {
+          sub(/^"/, "", value)
+          sub(/"$/, "", value)
+        }
+        return value
+      }
+      function flush_record() {
+        if (current_name != "") {
+          printf "%s|%s|%s|%s|%s\n", current_name, current_source, current_value_from, current_default, current_required
+        }
+        current_name=""
+        current_source=""
+        current_value_from=""
+        current_default=""
+        current_required=""
+      }
+      /^spec:/ { in_spec=1; in_pk3s=0; in_stack=0; in_runtime=0; in_inputs=0; next }
+      in_spec && /^  productiveK3s:/ { in_pk3s=1; in_stack=0; in_runtime=0; in_inputs=0; next }
+      in_pk3s && /^    stack:/ { in_stack=1; in_runtime=0; in_inputs=0; next }
+      in_stack && /^      runtime:/ { in_runtime=1; in_inputs=0; next }
+      in_runtime && /^        inputs:/ { in_inputs=1; next }
+      in_inputs && /^          - name:/ {
+        flush_record()
+        line=$0
+        sub(/^          - name:[[:space:]]*/, "", line)
+        current_name=trim(line)
+        next
+      }
+      in_inputs && current_name != "" && /^            source:/ {
+        line=$0
+        sub(/^            source:[[:space:]]*/, "", line)
+        current_source=trim(line)
+        next
+      }
+      in_inputs && current_name != "" && /^            valueFrom:/ {
+        line=$0
+        sub(/^            valueFrom:[[:space:]]*/, "", line)
+        current_value_from=trim(line)
+        next
+      }
+      in_inputs && current_name != "" && /^            default:/ {
+        line=$0
+        sub(/^            default:[[:space:]]*/, "", line)
+        current_default=trim(line)
+        next
+      }
+      in_inputs && current_name != "" && /^            required:/ {
+        line=$0
+        sub(/^            required:[[:space:]]*/, "", line)
+        current_required=trim(line)
+        next
+      }
+      in_inputs && /^[^ ]/ { flush_record(); exit }
+      in_inputs && /^  [^ ]/ { flush_record(); exit }
+      in_inputs && /^    [^ ]/ { flush_record(); exit }
+      in_inputs && /^      [^ ]/ { flush_record(); exit }
+      in_inputs && /^        [^ ]/ { flush_record(); exit }
+      END { flush_record() }
+    ' "${manifest}"
+  )
 }
 
 validate_stack_dir() {

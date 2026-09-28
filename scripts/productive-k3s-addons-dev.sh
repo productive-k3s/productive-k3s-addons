@@ -44,7 +44,7 @@ clean_named_suite_artifacts() {
 run_live_matrix_with_defaults() {
   local tls_source="${PK3S_TLS_SOURCE:-secret}"
   local cluster_issuer_action="${PK3S_CLUSTER_ISSUER_ACTION:-install}"
-  local cluster_issuer="${PK3S_CLUSTER_ISSUER:-selfsigned-issuer}"
+  local cluster_issuer="${PK3S_CLUSTER_ISSUER:-selfsigned}"
   local allow_host_local_changes="${PK3S_ALLOW_HOST_LOCAL_CHANGES:-n}"
   local rancher_manage_local_hosts="${PK3S_RANCHER_MANAGE_LOCAL_HOSTS:-n}"
   local registry_manage_local_hosts="${PK3S_REGISTRY_MANAGE_LOCAL_HOSTS:-n}"

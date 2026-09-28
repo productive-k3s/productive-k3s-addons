@@ -28,16 +28,13 @@ case "${LEVEL}" in
     ADDON_TGZ="${TMP_DIR}/${ADDON_NAME}.tgz"
     tar -czf "${ADDON_TGZ}" -C "${ADDON_DIR}" .
     cmd=(./productive-k3s-core.sh addon install --tgz "${ADDON_TGZ}")
-    if [[ -n "${PK3S_KUBE_CONTEXT:-}" ]]; then
-      cmd+=(--cluster-context "${PK3S_KUBE_CONTEXT}")
-    else
-      cmd+=(--kubeconfig "${KUBECONFIG}")
-    fi
     if [[ -n "${PK3S_ADDON_PUBLIC_HOST:-}" ]]; then
       cmd+=(--public-host "${PK3S_ADDON_PUBLIC_HOST}")
     fi
     (
       cd "${CORE_REPO_DIR}" && \
+      KUBECONFIG="${KUBECONFIG:-}" \
+      PK3S_KUBE_CONTEXT="${PK3S_KUBE_CONTEXT:-}" \
       PK3S_KUBECTL_MODE="kubectl" \
       PK3S_KUBECTL_BIN="${PK3S_KUBECTL_BIN:-kubectl}" \
       "${cmd[@]}"

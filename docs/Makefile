@@ -9,7 +9,7 @@ docs-serve:
 	bash ./serve.sh
 
 docs-up:
-	bash ./serve.sh
+	bash ./serve.sh --background
 
 docs-down:
 	bash ./clean.sh

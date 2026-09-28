@@ -11,3 +11,10 @@ Default behavior:
 Supported environment overrides:
 
 - `PK3S_CERT_MANAGER_VERSION`
+
+Stack runtime metadata:
+
+- `addon.yaml` declares the Core session values that are mapped into packaged
+  stack installs.
+- Core resolves TLS source and ClusterIssuer action generically when this addon
+  is installed from a bundled stack artifact.

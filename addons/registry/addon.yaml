@@ -17,6 +17,37 @@ spec:
     script: scripts/configure.sh
   install:
     script: scripts/install.sh
+  productiveK3s:
+    stack:
+      runtime:
+        inputs:
+          - name: PK3S_REGISTRY_IMAGE
+            source: PRODUCTIVE_K3S_REGISTRY_IMAGE
+          - name: PK3S_REGISTRY_HOST
+            source: REGISTRY_HOST
+          - name: PK3S_REGISTRY_PVC_SIZE
+            source: REGISTRY_SIZE
+          - name: PK3S_REGISTRY_STORAGE_CLASS
+            source: REGISTRY_STORAGE_CLASS
+          - name: PK3S_REGISTRY_MANAGE_LOCAL_HOSTS
+            source: REGISTRY_MANAGE_LOCAL_HOSTS
+            default: "n"
+          - name: PK3S_REGISTRY_TRUST_DOCKER
+            source: REGISTRY_TRUST_DOCKER
+            default: "n"
+          - name: PK3S_NODE_PRIMARY_IP
+            source: NODE_IP
+          - name: PK3S_TLS_SOURCE
+            valueFrom: core.tlsSource
+          - name: PK3S_CLUSTER_ISSUER
+            source: ISSUER_NAME
+          - name: PK3S_REGISTRY_AUTH_ENABLED
+            source: REGISTRY_AUTH_ENABLED
+          - name: PK3S_REGISTRY_AUTH_USER
+            source: REGISTRY_AUTH_USER
+          - name: PK3S_REGISTRY_AUTH_PASSWORD
+            source: REGISTRY_AUTH_PASSWORD
+            sensitive: true
   validate:
     script: scripts/validate.sh
   clean:

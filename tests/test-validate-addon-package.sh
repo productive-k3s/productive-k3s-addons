@@ -192,3 +192,26 @@ if bash "${VALIDATOR}" "${MISSING_IMPACT_REPO}" >/tmp/productive-k3s-addons-miss
 fi
 grep -q "missing required spec.impact" /tmp/productive-k3s-addons-missing-impact.out || fail "validator did not report missing impact metadata"
 pass "validator rejects addon sources without impact metadata"
+
+INVALID_STACK_INPUT_REPO="${WORK_DIR}/invalid-stack-input"
+mkdir -p "${INVALID_STACK_INPUT_REPO}/addons/demo/scripts" "${INVALID_STACK_INPUT_REPO}/stacks/base"
+cp "${VALID_REPO}/addons/demo/addon.yaml" "${INVALID_STACK_INPUT_REPO}/addons/demo/addon.yaml"
+cat >>"${INVALID_STACK_INPUT_REPO}/addons/demo/addon.yaml" <<'EOF'
+  productiveK3s:
+    stack:
+      runtime:
+        inputs:
+          - name: PK3S_DEMO_VALUE
+            source: invalid-source-name
+EOF
+cp "${VALID_REPO}/addons/demo/scripts/configure.sh" "${INVALID_STACK_INPUT_REPO}/addons/demo/scripts/configure.sh"
+cp "${VALID_REPO}/addons/demo/scripts/install.sh" "${INVALID_STACK_INPUT_REPO}/addons/demo/scripts/install.sh"
+cp "${VALID_REPO}/addons/demo/scripts/validate.sh" "${INVALID_STACK_INPUT_REPO}/addons/demo/scripts/validate.sh"
+cp "${VALID_REPO}/addons/demo/scripts/clean.sh" "${INVALID_STACK_INPUT_REPO}/addons/demo/scripts/clean.sh"
+cp "${VALID_REPO}/addons/demo/scripts/backup.sh" "${INVALID_STACK_INPUT_REPO}/addons/demo/scripts/backup.sh"
+cp "${VALID_REPO}/stacks/base/stack.yaml" "${INVALID_STACK_INPUT_REPO}/stacks/base/stack.yaml"
+if bash "${VALIDATOR}" "${INVALID_STACK_INPUT_REPO}" >/tmp/productive-k3s-addons-invalid-stack-input.out 2>&1; then
+  fail "validator unexpectedly accepted addon source with invalid stack runtime input source"
+fi
+grep -q "invalid stack runtime input source" /tmp/productive-k3s-addons-invalid-stack-input.out || fail "validator did not report invalid stack runtime input source"
+pass "validator rejects invalid stack runtime input metadata"

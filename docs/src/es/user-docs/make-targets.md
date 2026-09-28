@@ -19,6 +19,8 @@ make -C tests test-contract ADDON=<name>
 make -C tests test-live ADDON=<name> KUBECONFIG=~/.kube/config
 ```
 
+Acá `ADDON=<name>` funciona como selector del catálogo para validación dentro del repositorio. No significa que `productive-k3s-core` instale add-ons públicos por nombre de fuente. El camino público de `core` sigue siendo package-first con `addon install --tgz <artifact>`.
+
 Para trabajo coordinado con un checkout no publicado de Core:
 
 ```bash

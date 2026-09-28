@@ -1,0 +1,20 @@
+apiVersion: addons.productive-k3s.io/v1
+kind: Stack
+metadata:
+  name: production-readiness
+  version: 0.1.0
+  category: operations
+spec:
+  resolution:
+    mode: catalog
+  runtime:
+    compatibility:
+      kubernetes:
+        distros:
+          - k3s
+          - rke2
+  addons:
+    - popeye
+    - kubent
+    - trivy-operator
+    - kyverno

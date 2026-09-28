@@ -1,0 +1,30 @@
+{
+  "application": "openship-whoami-redis",
+  "source": "adaptations/openship/whoami-redis/compose.yaml",
+  "components": [
+    {
+      "name": "web",
+      "image": "traefik/whoami:v1.10",
+      "resolution": "generic-application",
+      "chart": "stakater/application",
+      "notes": [],
+      "reviewRequired": {
+        "volumes": [],
+        "chartVersionPinned": false
+      }
+    },
+    {
+      "name": "cache",
+      "image": "redis:7-alpine",
+      "resolution": "known-service",
+      "chart": "bitnami/redis",
+      "notes": [
+        "Review authentication and persistence before production use."
+      ],
+      "reviewRequired": {
+        "volumes": [],
+        "chartVersionPinned": false
+      }
+    }
+  ]
+}

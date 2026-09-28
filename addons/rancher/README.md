@@ -17,3 +17,12 @@ Supported environment overrides:
 - `PK3S_LETSENCRYPT_EMAIL`
 - `PK3S_LETSENCRYPT_ENVIRONMENT`
 - `PK3S_RANCHER_PRIVATE_CA`
+- `PK3S_RANCHER_MANAGE_LOCAL_HOSTS`
+- `PK3S_NODE_PRIMARY_IP`
+
+Stack runtime metadata:
+
+- `addon.yaml` declares the Core session values that are mapped into packaged
+  stack installs.
+- The bootstrap password input is marked sensitive in metadata for runtimes
+  that need to redact values in logs or events.

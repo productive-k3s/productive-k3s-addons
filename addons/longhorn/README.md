@@ -15,3 +15,12 @@ Supported environment overrides:
 - `PK3S_LONGHORN_REPLICA_COUNT`
 - `PK3S_LONGHORN_SINGLE_NODE_MODE`
 - `PK3S_LONGHORN_MINIMAL_AVAILABLE_PERCENTAGE`
+- `PK3S_LONGHORN_MAKE_DEFAULT`
+
+Stack runtime metadata:
+
+- `addon.yaml` declares the Core session values that are mapped into packaged
+  stack installs.
+- `PK3S_LONGHORN_MINIMAL_AVAILABLE_PERCENTAGE` must be numeric. Invalid values
+  are reset to the default `10` before the install script patches Longhorn
+  settings.

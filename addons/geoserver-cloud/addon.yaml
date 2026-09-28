@@ -1,0 +1,22 @@
+apiVersion: addons.productive-k3s.io/v1
+kind: Addon
+metadata:
+  name: geoserver-cloud
+  version: 0.1.0
+  category: geospatial
+spec:
+  type: shell
+  impact:
+    cluster: true
+    host: false
+    summary: "Installs GeoServer Cloud through the Camptocamp Helm chart with pgconfig catalog storage and ACL."
+  configure:
+    script: scripts/configure.sh
+  install:
+    script: scripts/install.sh
+  validate:
+    script: scripts/validate.sh
+  clean:
+    script: scripts/clean.sh
+  backup:
+    script: scripts/backup.sh

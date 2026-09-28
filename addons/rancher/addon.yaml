@@ -16,6 +16,30 @@ spec:
     script: scripts/configure.sh
   install:
     script: scripts/install.sh
+  productiveK3s:
+    stack:
+      runtime:
+        inputs:
+          - name: PK3S_RANCHER_VERSION
+            source: PRODUCTIVE_K3S_RANCHER_VERSION
+          - name: PK3S_RANCHER_HOST
+            source: RANCHER_HOST
+          - name: PK3S_RANCHER_BOOTSTRAP_PASSWORD
+            source: ADMIN_PASS
+            sensitive: true
+          - name: PK3S_RANCHER_MANAGE_LOCAL_HOSTS
+            source: RANCHER_MANAGE_LOCAL_HOSTS
+            default: "n"
+          - name: PK3S_NODE_PRIMARY_IP
+            source: NODE_IP
+          - name: PK3S_TLS_SOURCE
+            valueFrom: core.tlsSource
+          - name: PK3S_CLUSTER_ISSUER
+            source: ISSUER_NAME
+          - name: PK3S_LETSENCRYPT_EMAIL
+            source: LE_EMAIL
+          - name: PK3S_LETSENCRYPT_ENVIRONMENT
+            source: LE_ENV
   validate:
     script: scripts/validate.sh
   clean:

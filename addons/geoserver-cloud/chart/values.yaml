@@ -1,0 +1,176 @@
+rabbitmq:
+  enabled: true
+  image:
+    repository: bitnamilegacy/rabbitmq
+    tag: 3.12.14-debian-12-r0
+  auth:
+    username: geoserver
+    password: password
+    erlangCookie: cookie
+  persistence:
+    enabled: false
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      cpu: 500m
+      memory: 768Mi
+
+postgis:
+  enabled: true
+  image:
+    repository: postgis/postgis
+    tag: 16-3.4-alpine
+    pullPolicy: IfNotPresent
+  auth:
+    postgresPassword: g30s3rv3r
+  persistence:
+    enabled: false
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      cpu: 500m
+      memory: 768Mi
+
+geoservercloud:
+  global:
+    profile: standalone,pgconfig,acl
+    image:
+      pullPolicy: IfNotPresent
+  geoserver:
+    ingress:
+      enabled: false
+    services:
+      gateway:
+        enabled: true
+        ingress:
+          enabled: false
+          path: /geoserver/
+        containers:
+          spring:
+            resources: &gscloud-resources
+              requests:
+                cpu: 100m
+                memory: 384Mi
+              limits:
+                cpu: 750m
+                memory: 1Gi
+            env: &gscloud-env
+              GEOSERVER_BASE_PATH:
+                value: /geoserver
+              SPRING_PROFILES_ACTIVE:
+                value: standalone,pgconfig,acl
+              SPRING_CONFIG_ADDITIONAL_LOCATION:
+                value: optional:file:/etc/gscloud-custom/jndi.yml,optional:file:/etc/gscloud-custom/values.yml
+              GWC_ENABLED:
+                value: "true"
+              SPRING_CLOUD_BUS_ENABLED:
+                value: "false"
+              WCS_ENABLED:
+                value: "false"
+              GEOWEBCACHE_CACHE_DIR:
+                value: /tmp/geowebcache
+              JAVA_OPTS:
+                order: 1
+                value: "$(JAVA_OPTS_DEFAULT) -XshowSettings:system"
+              RABBITMQ_HOST:
+                value: geoserver-cloud-rabbitmq
+              RABBITMQ_PORT:
+                value: "5672"
+              RABBITMQ_USER:
+                value: geoserver
+              RABBITMQ_PASSWORD:
+                value: password
+              PG_PASSWORD:
+                value: g30s3rv3r
+              ACL_URL:
+                value: http://geoserver-cloud-gsc-acl:8080/acl/api
+              ACL_USERNAME:
+                value: admin
+              ACL_PASSWORD:
+                value: geoserver
+              PGCONFIG_HOST:
+                value: geoserver-cloud-postgresql-hl
+              PGCONFIG_PORT:
+                value: "5432"
+              PGCONFIG_DATABASE:
+                value: postgres
+              PGCONFIG_SCHEMA:
+                value: pgconfig
+              PGCONFIG_USERNAME:
+                value: postgres
+              PGCONFIG_PASSWORD:
+                value: g30s3rv3r
+              PGCONFIG_MAXCONNECTIONS:
+                value: "10"
+      webui:
+        enabled: true
+        containers:
+          spring:
+            resources: *gscloud-resources
+            env: *gscloud-env
+      rest:
+        enabled: true
+        containers:
+          spring:
+            resources: *gscloud-resources
+            env: *gscloud-env
+      wms:
+        enabled: true
+        containers:
+          spring:
+            resources: *gscloud-resources
+            env: *gscloud-env
+      wfs:
+        enabled: true
+        containers:
+          spring:
+            resources: *gscloud-resources
+            env: *gscloud-env
+      wcs:
+        enabled: false
+      wps:
+        enabled: false
+      gwc:
+        enabled: true
+        containers:
+          spring:
+            resources: *gscloud-resources
+            env: *gscloud-env
+      acl:
+        enabled: true
+        containers:
+          spring:
+            resources: *gscloud-resources
+            env:
+              GEOSERVER_BUS_ENABLED:
+                value: "false"
+              SPRING_CLOUD_BUS_ENABLED:
+                value: "false"
+              RABBITMQ_HOST:
+                value: geoserver-cloud-rabbitmq
+              RABBITMQ_PORT:
+                value: "5672"
+              RABBITMQ_USER:
+                value: geoserver
+              RABBITMQ_PASSWORD:
+                value: password
+              PG_HOST:
+                value: geoserver-cloud-postgresql-hl
+              PG_PORT:
+                value: "5432"
+              PG_DB:
+                value: postgres
+              PG_SCHEMA:
+                value: acl
+              PG_USERNAME:
+                value: postgres
+              PG_PASSWORD:
+                value: g30s3rv3r
+              ACL_USERS_ADMIN_PASSWORD:
+                value: geoserver
+              ACL_USERS_GEOSERVER_PASSWORD:
+                value: geoserver

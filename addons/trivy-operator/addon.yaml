@@ -1,0 +1,22 @@
+apiVersion: addons.productive-k3s.io/v1
+kind: Addon
+metadata:
+  name: trivy-operator
+  version: 0.1.0
+  category: security
+spec:
+  type: helm
+  impact:
+    cluster: true
+    host: false
+    summary: "Installs Trivy Operator in reporting mode for vulnerability and misconfiguration visibility."
+  configure:
+    script: scripts/configure.sh
+  install:
+    script: scripts/install.sh
+  validate:
+    script: scripts/validate.sh
+  clean:
+    script: scripts/clean.sh
+  backup:
+    script: scripts/backup.sh

@@ -1,0 +1,22 @@
+apiVersion: addons.productive-k3s.io/v1
+kind: Addon
+metadata:
+  name: argocd
+  version: 0.1.0
+  category: gitops
+spec:
+  type: helm
+  impact:
+    cluster: true
+    host: false
+    summary: "Installs Argo CD with configurable hostname, ingress, TLS, and initial admin password secret."
+  configure:
+    script: scripts/configure.sh
+  install:
+    script: scripts/install.sh
+  validate:
+    script: scripts/validate.sh
+  clean:
+    script: scripts/clean.sh
+  backup:
+    script: scripts/backup.sh
