@@ -1,0 +1,21 @@
+{
+  "application": "docker-compose-uptime-kuma",
+  "source": "adaptations/docker-compose/uptime-kuma/compose.yaml",
+  "components": [
+    {
+      "name": "uptime-kuma",
+      "image": "louislam/uptime-kuma:2",
+      "resolution": "generic-application",
+      "chart": "stakater/application",
+      "notes": [
+        "Compose volumes were detected; review generated TODOs for persistence mapping."
+      ],
+      "reviewRequired": {
+        "volumes": [
+          "/app/data"
+        ],
+        "chartVersionPinned": false
+      }
+    }
+  ]
+}

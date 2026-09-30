@@ -1,0 +1,8 @@
+fullnameOverride: postgres
+primary:
+  persistence:
+    enabled: false
+auth:
+  database: openship
+  username: openship
+  password: openship

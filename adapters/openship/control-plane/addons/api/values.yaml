@@ -1,0 +1,50 @@
+applicationName: api
+deployment:
+  enabled: true
+  replicas: 1
+  image:
+    repository: ghcr.io/oblien/openship-api
+    tag: latest
+  containerSecurityContext:
+    readOnlyRootFilesystem: false
+    runAsNonRoot: false
+  env:
+    BETTER_AUTH_SECRET:
+      value: productive-k3s-adapter-better-auth-secret-change-me
+    CLOUD_MODE:
+      value: 'false'
+    DATABASE_URL:
+      value: postgresql://openship:openship@postgres:5432/openship
+    DEPLOY_MODE:
+      value: docker
+    INTERNAL_TOKEN:
+      value: productive-k3s-adapter-internal-token-change-me
+    NODE_ENV:
+      value: production
+    OPENSHIP_ALLOW_ZERO_AUTH:
+      value: 'false'
+    OPENSHIP_AUTH_MODE:
+      value: local
+    OPENSHIP_HOST_CONTROL:
+      value: 'false'
+    OPENSHIP_PUBLIC_URL:
+      value: http://localhost:3001
+    OPENSHIP_REQUIRE_REDIS:
+      value: 'true'
+    PORT:
+      value: '4000'
+    REDIS_URL:
+      value: redis://redis-master:6379
+    TRUST_PROXY:
+      value: 'true'
+  ports:
+  - name: port-4000
+    containerPort: 4000
+    protocol: TCP
+service:
+  enabled: true
+  ports:
+  - name: port-4000
+    port: 4000
+    targetPort: 4000
+    protocol: TCP

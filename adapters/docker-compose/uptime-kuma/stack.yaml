@@ -1,0 +1,13 @@
+apiVersion: stacks.productive-k3s.io/v1alpha1
+kind: Stack
+metadata:
+  name: docker-compose-uptime-kuma
+  version: 0.1.0
+spec:
+  generatedBy: productive-k3s-adapters
+  source:
+    type: docker-compose
+    file: adaptations/docker-compose/uptime-kuma/compose.yaml
+  addons:
+  - name: uptime-kuma
+    path: addons/uptime-kuma

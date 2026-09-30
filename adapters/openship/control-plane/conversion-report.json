@@ -1,0 +1,54 @@
+{
+  "application": "openship-control-plane",
+  "source": "adaptations/openship/control-plane/compose.yaml",
+  "components": [
+    {
+      "name": "postgres",
+      "image": "postgres:16-alpine",
+      "resolution": "known-service",
+      "chart": "bitnami/postgresql",
+      "notes": [
+        "Persistence is disabled for generated smoke/control-plane adaptations; review state and credentials before production use."
+      ],
+      "reviewRequired": {
+        "volumes": [],
+        "chartVersionPinned": false
+      }
+    },
+    {
+      "name": "redis",
+      "image": "redis:7-alpine",
+      "resolution": "known-service",
+      "chart": "bitnami/redis",
+      "notes": [
+        "Persistence is disabled for generated smoke adaptations; review state and credentials before production use."
+      ],
+      "reviewRequired": {
+        "volumes": [],
+        "chartVersionPinned": false
+      }
+    },
+    {
+      "name": "api",
+      "image": "ghcr.io/oblien/openship-api:latest",
+      "resolution": "generic-application",
+      "chart": "stakater/application",
+      "notes": [],
+      "reviewRequired": {
+        "volumes": [],
+        "chartVersionPinned": false
+      }
+    },
+    {
+      "name": "dashboard",
+      "image": "ghcr.io/oblien/openship-dashboard:latest",
+      "resolution": "generic-application",
+      "chart": "stakater/application",
+      "notes": [],
+      "reviewRequired": {
+        "volumes": [],
+        "chartVersionPinned": false
+      }
+    }
+  ]
+}

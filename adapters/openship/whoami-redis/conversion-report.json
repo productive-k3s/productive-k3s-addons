@@ -19,7 +19,7 @@
       "resolution": "known-service",
       "chart": "bitnami/redis",
       "notes": [
-        "Review authentication and persistence before production use."
+        "Persistence is disabled for generated smoke adaptations; review state and credentials before production use."
       ],
       "reviewRequired": {
         "volumes": [],

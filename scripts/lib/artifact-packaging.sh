@@ -109,6 +109,111 @@ pk3s_package_addon() {
   tar -czf "${output_path}" -C "${addon_dir}" .
 }
 
+pk3s_package_addon_dir() {
+  local addon_dir="$1"
+  local output_path="$2"
+  local manifest="${addon_dir}/addon.yaml"
+  local addon_name
+
+  [[ -f "${manifest}" ]] || {
+    printf 'add-on source not found: %s\n' "${addon_dir}" >&2
+    return 1
+  }
+  addon_name="$(pk3s_trim_yaml_value "$(pk3s_metadata_value "${manifest}" name)")"
+  [[ -n "${addon_name}" ]] || {
+    printf 'add-on source %s is missing metadata.name\n' "${addon_dir}" >&2
+    return 1
+  }
+  pk3s_manifest_identity "${manifest}" "${addon_name}" >/dev/null
+  mkdir -p "$(dirname "${output_path}")"
+  tar -czf "${output_path}" -C "${addon_dir}" .
+}
+
+pk3s_stack_addon_paths() {
+  local manifest="$1"
+  awk '
+    /^spec:/ { in_spec=1; next }
+    in_spec && /^  addons:/ { in_addons=1; next }
+    in_addons && /^  [[:alnum:]_]/ { exit }
+    !in_addons { next }
+    /^[[:space:]]*- name:[[:space:]]*/ {
+      name=$0
+      sub(/^[[:space:]]*- name:[[:space:]]*/, "", name)
+      next
+    }
+    /^[[:space:]]+path:[[:space:]]*/ {
+      path=$0
+      sub(/^[[:space:]]+path:[[:space:]]*/, "", path)
+      print name "|" path
+    }
+  ' "${manifest}"
+}
+
+pk3s_package_adapter_stack() {
+  local stack_dir="$1"
+  local output_path="$2"
+  local stack_manifest="${stack_dir}/stack.yaml"
+  local stage_dir stack_name stack_version entry logical_name addon_path
+  local addon_dir addon_manifest addon_name addon_version addon_artifact
+
+  [[ -f "${stack_manifest}" ]] || {
+    printf 'adapter stack source not found: %s\n' "${stack_dir}" >&2
+    return 1
+  }
+  stack_name="$(pk3s_trim_yaml_value "$(pk3s_metadata_value "${stack_manifest}" name)")"
+  stack_version="$(pk3s_trim_yaml_value "$(pk3s_metadata_value "${stack_manifest}" version)")"
+  [[ -n "${stack_name}" && -n "${stack_version}" ]] || {
+    printf 'adapter stack source is missing metadata identity: %s\n' "${stack_dir}" >&2
+    return 1
+  }
+
+  stage_dir="$(mktemp -d)"
+  mkdir -p "${stage_dir}/addons" "$(dirname "${output_path}")"
+  {
+    printf 'apiVersion: addons.productive-k3s.io/v1\n'
+    printf 'kind: Stack\n'
+    printf 'metadata:\n'
+    printf '  name: %s\n' "${stack_name}"
+    printf '  version: %s\n' "${stack_version}"
+    printf 'spec:\n'
+    printf '  resolution:\n'
+    printf '    mode: bundled\n'
+    printf '  runtime:\n'
+    printf '    compatibility:\n'
+    printf '      kubernetes:\n'
+    printf '        distros:\n'
+    printf '          - k3s\n'
+    printf '  addons:\n'
+    while IFS= read -r entry; do
+      [[ -n "${entry}" ]] || continue
+      logical_name="${entry%%|*}"
+      addon_path="${entry#*|}"
+      addon_dir="${stack_dir}/${addon_path}"
+      addon_manifest="${addon_dir}/addon.yaml"
+      [[ -f "${addon_manifest}" ]] || {
+        rm -rf "${stage_dir}"
+        printf 'adapter stack %s references missing add-on path: %s\n' "${stack_name}" "${addon_path}" >&2
+        return 1
+      }
+      addon_name="$(pk3s_trim_yaml_value "$(pk3s_metadata_value "${addon_manifest}" name)")"
+      addon_version="$(pk3s_manifest_identity "${addon_manifest}" "${addon_name}")"
+      addon_artifact="${addon_name}-${addon_version}.tgz"
+      pk3s_package_addon_dir "${addon_dir}" "${stage_dir}/addons/${addon_artifact}"
+      printf '    - name: %s\n' "${addon_name:-${logical_name}}"
+      printf '      source: addons/%s\n' "${addon_artifact}"
+    done < <(pk3s_stack_addon_paths "${stack_manifest}")
+  } > "${stage_dir}/stack.yaml"
+
+  for optional_path in README.md adaptation.yaml conversion-report.json values patches hooks; do
+    if [[ -e "${stack_dir}/${optional_path}" ]]; then
+      cp -R "${stack_dir}/${optional_path}" "${stage_dir}/${optional_path}"
+    fi
+  done
+
+  tar -czf "${output_path}" -C "${stage_dir}" .
+  rm -rf "${stage_dir}"
+}
+
 pk3s_package_stack() {
   local repo_dir="$1"
   local stack_name="$2"

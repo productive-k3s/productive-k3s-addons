@@ -33,6 +33,8 @@ done
 
 bash "${REPO_DIR}/scripts/package-repository.sh" --output-dir "${repository_output}" >/dev/null
 expected_artifacts="$(find "${REPO_DIR}/addons" "${REPO_DIR}/stacks" -mindepth 2 -maxdepth 2 -type f \( -name addon.yaml -o -name stack.yaml \) | wc -l)"
+adapter_artifacts="$(find "${REPO_DIR}/adapters" -mindepth 3 -maxdepth 3 -type f -name stack.yaml | wc -l)"
+expected_artifacts="$((expected_artifacts + adapter_artifacts))"
 actual_artifacts="$(find "${repository_output}" -maxdepth 1 -type f -name '*.tgz' | wc -l)"
 [[ "${actual_artifacts}" == "${expected_artifacts}" ]] || {
   printf '[FAIL] repository packaging produced %s artifacts; expected %s\n' "${actual_artifacts}" "${expected_artifacts}" >&2
@@ -40,5 +42,16 @@ actual_artifacts="$(find "${repository_output}" -maxdepth 1 -type f -name '*.tgz
 }
 [[ -f "${repository_output}/base-0.1.0.tgz" ]]
 [[ -f "${repository_output}/nginx-0.1.0.tgz" ]]
+
+for adapter_stack in docker-compose-uptime-kuma openship-control-plane openship-whoami-redis; do
+  adapter_artifact="${repository_output}/${adapter_stack}-0.1.0.tgz"
+  [[ -s "${adapter_artifact}" ]] || {
+    printf '[FAIL] missing packaged adapter stack: %s\n' "${adapter_stack}" >&2
+    exit 1
+  }
+  tar -tzf "${adapter_artifact}" './stack.yaml' >/dev/null
+  tar -tzf "${adapter_artifact}" | grep -q '^./addons/.*\.tgz$'
+  tar -xOf "${adapter_artifact}" ./stack.yaml | grep -q 'mode: bundled'
+done
 
 printf '[PASS] stack packaging produces a self-contained bundled artifact\n'

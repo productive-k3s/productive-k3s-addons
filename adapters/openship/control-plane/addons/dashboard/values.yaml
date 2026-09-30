@@ -1,0 +1,30 @@
+applicationName: dashboard
+deployment:
+  enabled: true
+  replicas: 1
+  image:
+    repository: ghcr.io/oblien/openship-dashboard
+    tag: latest
+  containerSecurityContext:
+    readOnlyRootFilesystem: false
+    runAsNonRoot: false
+  env:
+    INTERNAL_API_URL:
+      value: http://api:4000
+    NODE_ENV:
+      value: production
+    OPENSHIP_PUBLIC_URL:
+      value: http://localhost:3001
+    PORT:
+      value: '3001'
+  ports:
+  - name: port-3001
+    containerPort: 3001
+    protocol: TCP
+service:
+  enabled: true
+  ports:
+  - name: port-3001
+    port: 3001
+    targetPort: 3001
+    protocol: TCP

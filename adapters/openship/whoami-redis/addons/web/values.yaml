@@ -5,6 +5,9 @@ deployment:
   image:
     repository: traefik/whoami
     tag: v1.10
+  containerSecurityContext:
+    readOnlyRootFilesystem: false
+    runAsNonRoot: false
   env:
     APP_ENV:
       value: production

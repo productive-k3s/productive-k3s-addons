@@ -1,0 +1,24 @@
+apiVersion: stacks.productive-k3s.io/v1alpha1
+kind: Stack
+metadata:
+  name: openship-control-plane
+  version: 0.1.0
+spec:
+  generatedBy: productive-k3s-adapters
+  source:
+    type: docker-compose
+    file: adaptations/openship/control-plane/compose.yaml
+  addons:
+  - name: postgres
+    path: addons/postgres
+  - name: redis
+    path: addons/redis
+  - name: api
+    path: addons/api
+    dependsOn:
+    - postgres
+    - redis
+  - name: dashboard
+    path: addons/dashboard
+    dependsOn:
+    - api

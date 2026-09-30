@@ -1,4 +1,4 @@
-fullnameOverride: cache
+fullnameOverride: redis
 architecture: standalone
 auth:
   enabled: false
