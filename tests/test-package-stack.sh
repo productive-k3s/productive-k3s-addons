@@ -28,7 +28,7 @@ for addon in cert-manager longhorn rancher registry; do
     printf '[FAIL] missing packaged add-on: %s\n' "${addon}" >&2
     exit 1
   }
-  tar -tzf "${addon_artifact}" | grep -q '^\./addon.yaml$'
+  tar -tzf "${addon_artifact}" './addon.yaml' >/dev/null
 done
 
 bash "${REPO_DIR}/scripts/package-repository.sh" --output-dir "${repository_output}" >/dev/null
