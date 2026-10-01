@@ -1,0 +1,7 @@
+apiVersion: materials.productive-k3s.io/v1alpha1
+kind: MaterialsLock
+metadata: {owner: productive-k3s-addons, package: cluster-health, version: 0.1.0}
+spec:
+  materials:
+    - {id: popeye, type: product-artifact, name: popeye, version: 0.1.0, source: productive-k3s-addons, pinPolicy: exact, required: true}
+    - {id: kubent, type: product-artifact, name: kubent, version: 0.1.0, source: productive-k3s-addons, pinPolicy: exact, required: true}

@@ -14,7 +14,7 @@
         "volumes": [
           "/app/data"
         ],
-        "chartVersionPinned": false
+        "chartVersionPinned": true
       }
     }
   ]

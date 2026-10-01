@@ -4,7 +4,7 @@ deployment:
   replicas: 1
   image:
     repository: ghcr.io/oblien/openship-dashboard
-    tag: latest
+    digest: sha256:a2e67cd3b3db93b523b6065254429c3388c4584167ad1c00f36270bfe4397953
   containerSecurityContext:
     readOnlyRootFilesystem: false
     runAsNonRoot: false

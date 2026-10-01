@@ -194,6 +194,14 @@ In the future, it may expose commands to discover or install addons.
 
 This repository is the public curated package layer for add-ons and stacks, including the `base` stack and the add-on-level host impact metadata consumed by Core.
 
+## Software Materials
+
+Every publishable add-on and stack owns a `materials.lock.yaml`. The Ops
+publication flow derives a resolved `bom.json`, embeds it in the TGZ, and emits
+a matching sidecar used by Catalogs for digest verification. Bundled Stacks
+reuse the resolved Addon archives and record both each nested archive digest
+and its BOM digest. Generated adapter components follow the same contract.
+
 ## License
 
 This project uses the same license as `productive-k3s-core`.

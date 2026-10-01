@@ -1,0 +1,6 @@
+apiVersion: materials.productive-k3s.io/v1alpha1
+kind: MaterialsLock
+metadata: {owner: productive-k3s-addons, package: kyverno, version: 0.1.0}
+spec:
+  materials:
+    - {id: kyverno-chart, type: helm-chart, name: kyverno, version: 3.9.0, source: "https://kyverno.github.io/kyverno", pinPolicy: exact, required: true}

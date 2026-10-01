@@ -109,6 +109,22 @@ pk3s_package_addon() {
   tar -czf "${output_path}" -C "${addon_dir}" .
 }
 
+pk3s_package_or_copy_addon() {
+  local repo_dir="$1"
+  local addon_name="$2"
+  local addon_version="$3"
+  local output_path="$4"
+  local prebuilt_dir="${PK3S_PREBUILT_ADDONS_DIR:-}"
+  local prebuilt_path="${prebuilt_dir}/${addon_name}-${addon_version}.tgz"
+
+  if [[ -n "${prebuilt_dir}" && -f "${prebuilt_path}" ]]; then
+    mkdir -p "$(dirname "${output_path}")"
+    cp "${prebuilt_path}" "${output_path}"
+    return 0
+  fi
+  pk3s_package_addon "${repo_dir}" "${addon_name}" "${output_path}"
+}
+
 pk3s_package_addon_dir() {
   local addon_dir="$1"
   local output_path="$2"
@@ -276,7 +292,7 @@ pk3s_package_stack() {
       }
       addon_version="$(pk3s_manifest_identity "${addon_manifest}" "${addon_name}")"
       addon_artifact="${addon_name}-${addon_version}.tgz"
-      pk3s_package_addon "${repo_dir}" "${addon_name}" "${stage_dir}/addons/${addon_artifact}"
+      pk3s_package_or_copy_addon "${repo_dir}" "${addon_name}" "${addon_version}" "${stage_dir}/addons/${addon_artifact}"
       printf '    - name: %s\n' "${addon_name}"
       printf '      source: addons/%s\n' "${addon_artifact}"
     done < <(pk3s_stack_addons "${stack_manifest}")

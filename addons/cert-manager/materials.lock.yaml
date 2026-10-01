@@ -1,0 +1,6 @@
+apiVersion: materials.productive-k3s.io/v1alpha1
+kind: MaterialsLock
+metadata: {owner: productive-k3s-addons, package: cert-manager, version: 0.1.0}
+spec:
+  materials:
+    - {id: cert-manager-manifest, type: manifest, name: cert-manager, version: v1.19.4, source: "https://github.com/cert-manager/cert-manager", pinPolicy: exact, required: true}

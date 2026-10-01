@@ -1,0 +1,6 @@
+apiVersion: materials.productive-k3s.io/v1alpha1
+kind: MaterialsLock
+metadata: {owner: productive-k3s-addons, package: kubent, version: 0.1.0}
+spec:
+  materials:
+    - {id: kubent-image, type: container-image, name: ghcr.io/doitintl/kube-no-trouble, version: 0.7.3, source: "ghcr.io/doitintl/kube-no-trouble", pinPolicy: exact-tag, required: true}

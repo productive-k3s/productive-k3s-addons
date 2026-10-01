@@ -1,0 +1,9 @@
+apiVersion: materials.productive-k3s.io/v1alpha1
+kind: MaterialsLock
+metadata: {owner: productive-k3s-addons, package: base, version: 0.1.0}
+spec:
+  materials:
+    - {id: cert-manager, type: product-artifact, name: cert-manager, version: 0.1.0, source: productive-k3s-addons, pinPolicy: exact, required: true}
+    - {id: longhorn, type: product-artifact, name: longhorn, version: 0.1.0, source: productive-k3s-addons, pinPolicy: exact, required: true}
+    - {id: rancher, type: product-artifact, name: rancher, version: 0.1.0, source: productive-k3s-addons, pinPolicy: exact, required: true}
+    - {id: registry, type: product-artifact, name: registry, version: 0.1.0, source: productive-k3s-addons, pinPolicy: exact, required: true}

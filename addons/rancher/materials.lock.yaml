@@ -1,0 +1,6 @@
+apiVersion: materials.productive-k3s.io/v1alpha1
+kind: MaterialsLock
+metadata: {owner: productive-k3s-addons, package: rancher, version: 0.1.0}
+spec:
+  materials:
+    - {id: rancher-chart, type: helm-chart, name: rancher, version: v2.14.2, source: "https://releases.rancher.com/server-charts/stable", pinPolicy: exact, required: true}

@@ -75,7 +75,7 @@ ensure_rancher_private_ca_secret() {
 
 pk3s_addon_install() {
   kctl create namespace cattle-system >/dev/null 2>&1 || true
-  "${HELM_BIN}" repo add rancher-latest https://releases.rancher.com/server-charts/latest >/dev/null 2>&1 || true
+  "${HELM_BIN}" repo add rancher-stable https://releases.rancher.com/server-charts/stable >/dev/null 2>&1 || true
   "${HELM_BIN}" repo update >/dev/null
 
   if [[ "${TLS_SOURCE}" == "secret" ]]; then
@@ -96,7 +96,7 @@ EOF
     wait_secret cattle-system rancher-tls
     wait_certificate_ready cattle-system rancher-tls
     ensure_rancher_private_ca_secret
-    "${HELM_BIN}" upgrade --install rancher rancher-latest/rancher \
+    "${HELM_BIN}" upgrade --install rancher rancher-stable/rancher \
       --namespace cattle-system \
       --version "${RANCHER_VERSION}" \
       --set hostname="${RANCHER_HOST}" \
@@ -105,7 +105,7 @@ EOF
       --set ingress.tls.source=secret \
       --set privateCA="${PRIVATE_CA}"
   else
-    "${HELM_BIN}" upgrade --install rancher rancher-latest/rancher \
+    "${HELM_BIN}" upgrade --install rancher rancher-stable/rancher \
       --namespace cattle-system \
       --version "${RANCHER_VERSION}" \
       --set hostname="${RANCHER_HOST}" \

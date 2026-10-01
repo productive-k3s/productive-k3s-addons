@@ -1,0 +1,6 @@
+apiVersion: materials.productive-k3s.io/v1alpha1
+kind: MaterialsLock
+metadata: {owner: productive-k3s-addons, package: popeye, version: 0.1.0}
+spec:
+  materials:
+    - {id: popeye-image, type: container-image, name: quay.io/derailed/popeye, version: v0.22.1, source: "quay.io/derailed/popeye", pinPolicy: exact-tag, required: true}

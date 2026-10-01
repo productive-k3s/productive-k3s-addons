@@ -10,7 +10,7 @@
       "notes": [],
       "reviewRequired": {
         "volumes": [],
-        "chartVersionPinned": false
+        "chartVersionPinned": true
       }
     },
     {
@@ -23,7 +23,7 @@
       ],
       "reviewRequired": {
         "volumes": [],
-        "chartVersionPinned": false
+        "chartVersionPinned": true
       }
     }
   ]

@@ -9,7 +9,7 @@ NAMESPACE="${PK3S_ADDON_NAMESPACE:-pk3s-docker-compose-uptime-kuma}"
 pk3s_addon_install() {
   "${HELM_BIN}" repo add stakater https://stakater.github.io/stakater-charts >/dev/null 2>&1 || true
   "${HELM_BIN}" repo update >/dev/null
-  "${HELM_BIN}" upgrade --install "${RELEASE_NAME}" stakater/application \
+  "${HELM_BIN}" upgrade --install "${RELEASE_NAME}" stakater/application --version "9.3.2" \
     --namespace "${NAMESPACE}" \
     --create-namespace \
     -f "${VALUES_FILE}"

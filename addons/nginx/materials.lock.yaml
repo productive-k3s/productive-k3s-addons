@@ -1,0 +1,6 @@
+apiVersion: materials.productive-k3s.io/v1alpha1
+kind: MaterialsLock
+metadata: {owner: productive-k3s-addons, package: nginx, version: 0.1.0}
+spec:
+  materials:
+    - {id: nginx-chart, type: helm-chart, name: nginx, version: 25.2.1, source: "https://charts.bitnami.com/bitnami", pinPolicy: exact, required: true}
