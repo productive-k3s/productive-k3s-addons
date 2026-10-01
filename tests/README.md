@@ -22,6 +22,7 @@ Use the root entrypoints for the main flows:
 ```bash
 make test-all
 make test-matrix
+make test-coverage
 make test-live-matrix
 ```
 
@@ -62,6 +63,10 @@ The live matrix is intentionally limited to the `base` stack. Static and contrac
 - `test-contract`
 
 It does not run live install checks against a real cluster.
+
+`make test-coverage` validates every publishable add-on, stack, and generated
+adaptation contract. The current baseline is `100%` (`29/29`) and the enforced
+floor is `80%`.
 
 When validating stack content before the next Core release is published, point the runner to a newer Core revision:
 

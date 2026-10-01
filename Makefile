@@ -1,4 +1,4 @@
-.PHONY: help docs-build docs-serve docs-up docs-down docs-clean package-stack package-artifacts test-all test-matrix test-live-matrix test-live-matrix-ubuntu24 test-logs-clean
+.PHONY: help docs-build docs-serve docs-up docs-down docs-clean package-stack package-artifacts test-all test-coverage test-matrix test-live-matrix test-live-matrix-ubuntu24 test-logs-clean
 
 TESTS_DIR := ./tests
 DOCS_DIR := ./docs
@@ -15,6 +15,7 @@ help:
 	@echo "  make package-stack STACK=<name> OUTPUT=<tgz> Build a bundled stack artifact"
 	@echo "  make package-artifacts OUTPUT_DIR=<dir>      Build all repository artifacts"
 	@echo "  make test-all                               Run local non-live checks"
+	@echo "  make test-coverage                          Enforce publishable contract coverage"
 	@echo "  make test-matrix                            Run static + contract across all addons and stacks"
 	@echo "  make test-live-matrix                       Run live validation for the base stack"
 	@echo "  make test-live-matrix-ubuntu24              Run base stack live validation in a disposable Ubuntu 24.04 Multipass VM"
@@ -48,6 +49,9 @@ package-artifacts:
 
 test-all:
 	$(MAKE) -C $(TESTS_DIR) test-all
+
+test-coverage:
+	$(MAKE) -C $(TESTS_DIR) test-coverage
 
 test-matrix:
 	$(MAKE) -C $(TESTS_DIR) test-matrix
