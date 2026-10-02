@@ -3,7 +3,17 @@ kind: Stack
 metadata:
   name: docker-compose-uptime-kuma
   version: 0.1.0
+  sourceRevision: development
 spec:
+  compatibility:
+    requires:
+      core:
+        contract: artifact/v1
+        minVersion: 0.9.6
+        maxVersionExclusive: 0.10.0
+      kubernetes:
+        distros:
+          - k3s
   generatedBy: productive-k3s-adapters
   source:
     type: docker-compose

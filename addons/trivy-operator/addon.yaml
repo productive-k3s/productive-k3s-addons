@@ -3,8 +3,19 @@ kind: Addon
 metadata:
   name: trivy-operator
   version: 0.1.0
+  sourceRevision: development
   category: security
 spec:
+  compatibility:
+    requires:
+      core:
+        contract: artifact/v1
+        minVersion: 0.9.6
+        maxVersionExclusive: 0.10.0
+      kubernetes:
+        distros:
+          - k3s
+          - rke2
   type: helm
   impact:
     cluster: true

@@ -3,8 +3,18 @@ kind: Addon
 metadata:
   name: openship-control-plane-redis
   version: 0.1.0
+  sourceRevision: development
   category: generated
 spec:
+  compatibility:
+    requires:
+      core:
+        contract: artifact/v1
+        minVersion: 0.9.6
+        maxVersionExclusive: 0.10.0
+      kubernetes:
+        distros:
+          - k3s
   type: helm
   impact:
     cluster: true

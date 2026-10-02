@@ -17,6 +17,18 @@ This repository now carries two different kinds of content:
 
 Core must remain valid without any predefined stack. This repository is where stack intent and add-on packages live.
 
+## Runtime compatibility contract
+
+Every add-on and stack source declares `metadata.version`, a development
+`metadata.sourceRevision`, and `spec.compatibility.requires`. Packaging replaces
+the development revision with the immutable Git commit used for the build.
+
+Published stacks also contain `spec.resolvedAddons`: an exact lock of every
+included add-on name, semantic version, bundled path, and SHA-256 digest. Core
+validates the stack, every nested add-on, and every digest before installation.
+Missing metadata, unknown contracts, and versions outside the declared
+`minVersion` / `maxVersionExclusive` window fail closed.
+
 Typical examples include cluster capabilities such as:
 
 - certificates
