@@ -6,6 +6,8 @@ ADDON_NAME="${2:?addon name is required}"
 CORE_REPO_DIR="${3:?core repo is required}"
 REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 ADDON_DIR="${REPO_DIR}/addons/${ADDON_NAME}"
+# shellcheck disable=SC1091
+source "${REPO_DIR}/scripts/lib/artifact-packaging.sh"
 
 case "${LEVEL}" in
   static)
@@ -26,7 +28,8 @@ case "${LEVEL}" in
     TMP_DIR="$(mktemp -d)"
     trap 'rm -rf "${TMP_DIR}"' EXIT
     ADDON_TGZ="${TMP_DIR}/${ADDON_NAME}.tgz"
-    tar -czf "${ADDON_TGZ}" -C "${ADDON_DIR}" .
+    ADDON_VERSION="$(pk3s_manifest_identity "${ADDON_DIR}/addon.yaml" "${ADDON_NAME}")"
+    pk3s_package_or_copy_addon "${REPO_DIR}" "${ADDON_NAME}" "${ADDON_VERSION}" "${ADDON_TGZ}"
     cmd=(./productive-k3s-core.sh addon install --tgz "${ADDON_TGZ}")
     if [[ -n "${PK3S_ADDON_PUBLIC_HOST:-}" ]]; then
       cmd+=(--public-host "${PK3S_ADDON_PUBLIC_HOST}")

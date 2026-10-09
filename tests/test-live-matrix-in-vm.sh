@@ -12,6 +12,7 @@ REMOTE_USER="${LIVE_MATRIX_REMOTE_USER:-ubuntu}"
 REMOTE_HOME="/home/${REMOTE_USER}"
 REMOTE_CORE_DIR="${LIVE_MATRIX_CORE_REMOTE_DIR:-${REMOTE_HOME}/productive-k3s-core}"
 REMOTE_ADDONS_DIR="${LIVE_MATRIX_ADDONS_REMOTE_DIR:-${REMOTE_HOME}/productive-k3s-addons}"
+REMOTE_PREBUILT_ADDONS_DIR="${LIVE_MATRIX_PREBUILT_ADDONS_REMOTE_DIR:-${REMOTE_HOME}/productive-k3s-prebuilt-addons}"
 REMOTE_KUBECONFIG="${LIVE_MATRIX_REMOTE_KUBECONFIG:-${REMOTE_HOME}/.kube/config}"
 KEEP_VM="${KEEP_VM:-n}"
 TRANSFER_STAGING_DIR=""
@@ -85,7 +86,7 @@ prepare_core_source() {
 }
 
 stage_addons_repo() {
-  local staging_parent
+  local staging_parent stack_artifact stack_extract_dir
   staging_parent="${HOME}/pk3s-transfer-staging"
   mkdir -p "${staging_parent}"
   TRANSFER_STAGING_DIR="$(mktemp -d "${staging_parent}/staging.XXXXXX")"
@@ -99,6 +100,19 @@ stage_addons_repo() {
     -czf "${TRANSFER_STAGING_DIR}/productive-k3s-addons.tar.gz" \
     -C "$(dirname "${REPO_DIR}")" \
     "$(basename "${REPO_DIR}")"
+
+  stack_artifact="${TRANSFER_STAGING_DIR}/base.tgz"
+  stack_extract_dir="${TRANSFER_STAGING_DIR}/base"
+  mkdir -p "${stack_extract_dir}"
+  log "Packaging immutable base add-on artifacts from the source checkout"
+  bash "${REPO_DIR}/scripts/package-stack.sh" --stack base --output "${stack_artifact}" >/dev/null
+  tar -xzf "${stack_artifact}" -C "${stack_extract_dir}"
+  [[ -d "${stack_extract_dir}/addons" ]] || {
+    err "packaged base stack does not contain bundled add-on artifacts"
+    exit 1
+  }
+  tar -czf "${TRANSFER_STAGING_DIR}/productive-k3s-prebuilt-addons.tar.gz" \
+    -C "${stack_extract_dir}/addons" .
 }
 
 launch_core_vm() {
@@ -122,10 +136,15 @@ copy_addons_repo_to_vm() {
   }
   multipass exec "${VM_NAME}" -- bash -lc "rm -rf '${REMOTE_ADDONS_DIR}' && mkdir -p '${REMOTE_HOME}/.kube'"
   multipass transfer "${TRANSFER_STAGING_DIR}/productive-k3s-addons.tar.gz" "${VM_NAME}:${REMOTE_HOME}/productive-k3s-addons.tar.gz"
+  multipass transfer "${TRANSFER_STAGING_DIR}/productive-k3s-prebuilt-addons.tar.gz" "${VM_NAME}:${REMOTE_HOME}/productive-k3s-prebuilt-addons.tar.gz"
   multipass exec "${VM_NAME}" -- bash -lc "
     cd '${REMOTE_HOME}' &&
     tar -xzf productive-k3s-addons.tar.gz &&
-    rm -f productive-k3s-addons.tar.gz
+    rm -f productive-k3s-addons.tar.gz &&
+    rm -rf '${REMOTE_PREBUILT_ADDONS_DIR}' &&
+    mkdir -p '${REMOTE_PREBUILT_ADDONS_DIR}' &&
+    tar -xzf productive-k3s-prebuilt-addons.tar.gz -C '${REMOTE_PREBUILT_ADDONS_DIR}' &&
+    rm -f productive-k3s-prebuilt-addons.tar.gz
   "
 }
 
@@ -149,6 +168,7 @@ run_live_matrix_inside_vm() {
     PK3S_CLUSTER_ISSUER_ACTION='install' \
     PK3S_CLUSTER_ISSUER='selfsigned-issuer' \
     PK3S_ADDON_PUBLIC_HOST='${PK3S_ADDON_PUBLIC_HOST:-}' \
+    PK3S_PREBUILT_ADDONS_DIR='${REMOTE_PREBUILT_ADDONS_DIR}' \
     bash ./tests/common.sh test-live-matrix
   "
 }
@@ -165,8 +185,8 @@ copy_remote_artifacts_back() {
 
 need_cmd multipass
 prepare_core_source
-launch_core_vm
 stage_addons_repo
+launch_core_vm
 copy_addons_repo_to_vm
 prepare_remote_kubeconfig
 run_live_matrix_inside_vm
