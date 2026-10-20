@@ -9,11 +9,12 @@ The default mode is reporting only. The operator creates Kubernetes report resou
 - Namespace: `trivy-system`
 - Helm repository: `https://aquasecurity.github.io/helm-charts`
 - Chart: `trivy-operator/trivy-operator`
-- Chart version: `0.35.0`
+- Chart version: `0.35.0`, verified by archive SHA-256
+- Operator, scanner, collector, and policy bundle identities: pinned by digest in `values.yaml` and `materials.lock.yaml`
 - Operator app version: `0.33.0`
 - Default scanner report TTL: chart default
 
-Override the chart version with `PK3S_TRIVY_OPERATOR_CHART_VERSION`.
+Override chart identity only as a pair with `PK3S_TRIVY_OPERATOR_CHART_VERSION` and `PK3S_TRIVY_OPERATOR_CHART_SHA256`; a mismatched archive fails before installation.
 
 ## Small Cluster Notes
 

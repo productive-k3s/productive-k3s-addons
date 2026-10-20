@@ -3,4 +3,13 @@ kind: MaterialsLock
 metadata: {owner: productive-k3s-addons, package: argocd, version: 0.1.0}
 spec:
   materials:
-    - {id: argocd-chart, type: helm-chart, name: argo-cd, version: 10.8.1, source: "https://argoproj.github.io/argo-helm", pinPolicy: exact, required: true}
+    - {id: argocd-chart, type: helm-chart, name: argo-cd, version: 10.8.1, source: "https://argoproj.github.io/argo-helm", pinPolicy: exact-digest, digest: "sha256:7f71e5af5eac0eb73bd79faf6fca60a644740ee4773d17f5225786ead265b064", required: true}
+    - {id: argocd-image, type: container-image, name: quay.io/argoproj/argocd, version: v3.5.2, source: "quay.io/argoproj/argocd", pinPolicy: exact-digest, digest: "sha256:e2aadfae709d904e87f46ba4aa49601d827b3022db22cd4d03aae816a2e7097b", required: true}
+    - {id: dex-image, type: container-image, name: ghcr.io/dexidp/dex, version: v2.45.1, source: "ghcr.io/dexidp/dex", pinPolicy: exact-digest, digest: "sha256:8499afd690c437f52301efd2b05b2455da5bd2dfc20332cd697dc9937f808462", required: true}
+    - {id: redis-image, type: container-image, name: library/redis, version: 8.6.4-alpine, source: "docker.io/library/redis", pinPolicy: exact-digest, digest: "sha256:2cc044fc5a07c9b701f8f1255a309ae9ad7856e694ac03513bf3648c01e40763", required: true}
+    - {id: redis-exporter-image, type: container-image, name: ghcr.io/oliver006/redis_exporter, version: v1.90.0, source: "ghcr.io/oliver006/redis_exporter", pinPolicy: exact-digest, digest: "sha256:a129504e65b87c54f79bc92f1afc403475e8ff646a3d7512de469904ceddf986", required: false}
+    - {id: redis-ha-exporter-image, type: container-image, name: ghcr.io/oliver006/redis_exporter, version: v1.75.0, source: "ghcr.io/oliver006/redis_exporter", pinPolicy: exact-digest, digest: "sha256:bbc0b673a89296eab36d6c6c2bde8571ee868dc4059306be482c03d7b05aa662", required: false}
+    - {id: redis-ha-haproxy-image, type: container-image, name: library/haproxy, version: 3.3.10-alpine, source: "docker.io/library/haproxy", pinPolicy: exact-digest, digest: "sha256:29c775f541ba6364ac95de998a8d3d16eb4882470c4fd7bbe8de8315edfdd883", required: false}
+    - {id: redis-ha-shellcheck-image, type: container-image, name: koalaman/shellcheck, version: v0.11.0, source: "docker.io/koalaman/shellcheck", pinPolicy: exact-digest, digest: "sha256:61862eba1fcf09a484ebcc6feea46f1782532571a34ed51fedf90dd25f925a8d", required: false}
+    - {id: redis-ha-sysctl-image, type: container-image, name: library/busybox, version: 1.38.0, source: "docker.io/library/busybox", pinPolicy: exact-digest, digest: "sha256:fd7dc98638c8e305f4dc34e979f1c0fdfdcaeb0fbf8fcff77ae834b6da3d7e6e", required: false}
+    - {id: argocd-extension-installer-image, type: container-image, name: quay.io/argoprojlabs/argocd-extension-installer, version: v1.1.0, source: "quay.io/argoprojlabs/argocd-extension-installer", pinPolicy: exact-digest, digest: "sha256:6cc786ba4dc96ba81d5010fbf92adabef15aff89753a55e22b8d829cd8b6e2a8", required: false}

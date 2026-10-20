@@ -3,4 +3,5 @@ kind: MaterialsLock
 metadata: {owner: productive-k3s-addons, package: cloudnative-pg, version: 0.1.0}
 spec:
   materials:
-    - {id: cloudnative-pg-chart, type: helm-chart, name: cloudnative-pg, version: 0.29.0, source: "https://cloudnative-pg.github.io/charts", pinPolicy: exact, required: true}
+    - {id: cloudnative-pg-chart, type: helm-chart, name: cloudnative-pg, version: 0.29.0, source: "https://cloudnative-pg.github.io/charts", pinPolicy: exact-digest, digest: "sha256:668e065ff53508d58238788fd35b355a925060843629a951df0e6a9362e6d32f", required: true}
+    - {id: cloudnative-pg-image, type: container-image, name: ghcr.io/cloudnative-pg/cloudnative-pg, version: 1.30.0, source: "ghcr.io/cloudnative-pg/cloudnative-pg", pinPolicy: exact-digest, digest: "sha256:a2701eb97cdd2a34b1fdb2cb51987f544b706e40bec72ae7146cd8580efefebb", required: true}
