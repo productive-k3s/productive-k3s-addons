@@ -1,0 +1,9 @@
+apiVersion: materials.productive-k3s.io/v1alpha1
+kind: MaterialsLock
+metadata: {owner: productive-k3s-addons, package: geoserver-cloud, version: 0.1.0}
+spec:
+  materials:
+    - {id: geoserver-cloud-chart, type: helm-chart, name: geoserver-cloud, version: 3.0.1, source: "https://camptocamp.github.io/helm-geoserver-cloud", pinPolicy: exact, required: true}
+    - {id: rabbitmq-chart, type: helm-chart, name: rabbitmq, version: 14.4.0, source: "oci://ghcr.io/georchestra/bitnami-helm-charts", pinPolicy: exact-digest, digest: "sha256:7b9fad6b013eee916df0123269b70fc1baa179b556187e6fadc4e283a608270b", required: true}
+    - {id: rabbitmq-image, type: container-image, name: bitnamilegacy/rabbitmq, version: 3.12.14-debian-12-r0, source: "docker.io/bitnamilegacy/rabbitmq", pinPolicy: exact-tag, required: true}
+    - {id: postgis-image, type: container-image, name: postgis/postgis, version: 16-3.4-alpine, source: "docker.io/postgis/postgis", pinPolicy: exact-tag, required: true}

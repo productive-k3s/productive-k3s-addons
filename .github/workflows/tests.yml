@@ -18,3 +18,6 @@ jobs:
 
       - name: Run static and contract validation
         run: make test-matrix
+
+      - name: Enforce publishable contract coverage
+        run: make test-coverage

@@ -3,15 +3,21 @@ kind: Stack
 metadata:
   name: geospatial
   version: 0.1.0
+  sourceRevision: development
   category: geospatial
 spec:
-  resolution:
-    mode: catalog
-  runtime:
-    compatibility:
+  compatibility:
+    requires:
+      core:
+        contract: artifact/v1
+        minVersion: 0.9.6
+        maxVersionExclusive: 0.10.0
       kubernetes:
         distros:
           - k3s
           - rke2
+  resolution:
+    mode: catalog
+
   addons:
     - geoserver-cloud

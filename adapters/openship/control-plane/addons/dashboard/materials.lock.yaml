@@ -1,0 +1,25 @@
+apiVersion: materials.productive-k3s.io/v1alpha1
+kind: MaterialsLock
+metadata:
+  owner: productive-k3s-addons
+  package: openship-control-plane-dashboard
+  version: 0.1.0
+spec:
+  materials:
+  - id: helm-chart
+    type: helm-chart
+    name: application
+    version: 9.3.2
+    source: https://stakater.github.io/stakater-charts
+    pinPolicy: exact
+    required: true
+    updateSource:
+      type: helm-index
+  - id: container-image
+    type: container-image
+    name: ghcr.io/oblien/openship-dashboard
+    version: sha256:a2e67cd3b3db93b523b6065254429c3388c4584167ad1c00f36270bfe4397953
+    source: ghcr.io/oblien/openship-dashboard
+    pinPolicy: exact-digest
+    required: true
+    digest: sha256:a2e67cd3b3db93b523b6065254429c3388c4584167ad1c00f36270bfe4397953

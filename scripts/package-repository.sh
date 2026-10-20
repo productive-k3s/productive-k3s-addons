@@ -62,3 +62,15 @@ while IFS= read -r stack_dir; do
   pk3s_package_stack "${repo_dir}" "${stack_name}" "${artifact_path}"
   printf '[INFO] Created %s\n' "${artifact_path}"
 done < <(find "${repo_dir}/stacks" -mindepth 1 -maxdepth 1 -type d | sort)
+
+if [[ -d "${repo_dir}/adapters" ]]; then
+  while IFS= read -r stack_manifest; do
+    stack_dir="$(dirname "${stack_manifest}")"
+    stack_name="$(pk3s_trim_yaml_value "$(pk3s_metadata_value "${stack_manifest}" name)")"
+    stack_version="$(pk3s_trim_yaml_value "$(pk3s_metadata_value "${stack_manifest}" version)")"
+    [[ -n "${stack_name}" && -n "${stack_version}" ]] || fail "adapter stack metadata is incomplete: ${stack_manifest}"
+    artifact_path="${output_dir}/${stack_name}-${stack_version}.tgz"
+    pk3s_package_adapter_stack "${stack_dir}" "${artifact_path}"
+    printf '[INFO] Created %s\n' "${artifact_path}"
+  done < <(find "${repo_dir}/adapters" -mindepth 3 -maxdepth 3 -type f -name stack.yaml | sort)
+fi

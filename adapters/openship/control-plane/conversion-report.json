@@ -1,0 +1,54 @@
+{
+  "application": "openship-control-plane",
+  "source": "adaptations/openship/control-plane/compose.yaml",
+  "components": [
+    {
+      "name": "postgres",
+      "image": "postgres:16-alpine",
+      "resolution": "known-service",
+      "chart": "bitnami/postgresql",
+      "notes": [
+        "Persistence is disabled for generated smoke/control-plane adaptations; review state and credentials before production use."
+      ],
+      "reviewRequired": {
+        "volumes": [],
+        "chartVersionPinned": true
+      }
+    },
+    {
+      "name": "redis",
+      "image": "redis:7-alpine",
+      "resolution": "known-service",
+      "chart": "bitnami/redis",
+      "notes": [
+        "Persistence is disabled for generated smoke adaptations; review state and credentials before production use."
+      ],
+      "reviewRequired": {
+        "volumes": [],
+        "chartVersionPinned": true
+      }
+    },
+    {
+      "name": "api",
+      "image": "ghcr.io/oblien/openship-api@sha256:b92087209e7a12b70a501b7d4a997ec572cccb14a975d483d34739e3b10cf2af",
+      "resolution": "generic-application",
+      "chart": "stakater/application",
+      "notes": [],
+      "reviewRequired": {
+        "volumes": [],
+        "chartVersionPinned": true
+      }
+    },
+    {
+      "name": "dashboard",
+      "image": "ghcr.io/oblien/openship-dashboard@sha256:a2e67cd3b3db93b523b6065254429c3388c4584167ad1c00f36270bfe4397953",
+      "resolution": "generic-application",
+      "chart": "stakater/application",
+      "notes": [],
+      "reviewRequired": {
+        "volumes": [],
+        "chartVersionPinned": true
+      }
+    }
+  ]
+}

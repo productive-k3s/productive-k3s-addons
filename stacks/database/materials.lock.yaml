@@ -1,0 +1,7 @@
+apiVersion: materials.productive-k3s.io/v1alpha1
+kind: MaterialsLock
+metadata: {owner: productive-k3s-addons, package: database, version: 0.1.0}
+spec:
+  materials:
+    - {id: longhorn, type: product-artifact, name: longhorn, version: 0.1.0, source: productive-k3s-addons, pinPolicy: exact, required: true}
+    - {id: cloudnative-pg, type: product-artifact, name: cloudnative-pg, version: 0.1.0, source: productive-k3s-addons, pinPolicy: exact, required: true}

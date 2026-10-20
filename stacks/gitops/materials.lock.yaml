@@ -1,0 +1,7 @@
+apiVersion: materials.productive-k3s.io/v1alpha1
+kind: MaterialsLock
+metadata: {owner: productive-k3s-addons, package: gitops, version: 0.1.0}
+spec:
+  materials:
+    - {id: cert-manager, type: product-artifact, name: cert-manager, version: 0.1.0, source: productive-k3s-addons, pinPolicy: exact, required: true}
+    - {id: argocd, type: product-artifact, name: argocd, version: 0.1.0, source: productive-k3s-addons, pinPolicy: exact, required: true}

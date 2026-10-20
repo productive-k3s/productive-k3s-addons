@@ -1,0 +1,6 @@
+apiVersion: materials.productive-k3s.io/v1alpha1
+kind: MaterialsLock
+metadata: {owner: productive-k3s-addons, package: cloudnative-pg, version: 0.1.0}
+spec:
+  materials:
+    - {id: cloudnative-pg-chart, type: helm-chart, name: cloudnative-pg, version: 0.29.0, source: "https://cloudnative-pg.github.io/charts", pinPolicy: exact, required: true}

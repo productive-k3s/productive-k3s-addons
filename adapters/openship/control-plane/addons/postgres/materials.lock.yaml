@@ -1,0 +1,17 @@
+apiVersion: materials.productive-k3s.io/v1alpha1
+kind: MaterialsLock
+metadata:
+  owner: productive-k3s-addons
+  package: openship-control-plane-postgres
+  version: 0.1.0
+spec:
+  materials:
+  - id: helm-chart
+    type: helm-chart
+    name: postgresql
+    version: 18.12.4
+    source: https://charts.bitnami.com/bitnami
+    pinPolicy: exact
+    required: true
+    updateSource:
+      type: helm-index

@@ -4,6 +4,9 @@ set -euo pipefail
 REPO_DIR="${1:-}"
 KIND=""
 NAME=""
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck disable=SC1091
+source "${SCRIPT_DIR}/lib/artifact-packaging.sh"
 
 usage() {
   echo "Usage: $0 <repo-dir> [--kind addon|stack] [--name <name>]" >&2
@@ -48,6 +51,7 @@ validate_addon_dir() {
     echo "Publishable addon source missing addon.yaml: ${addon_dir}" >&2
     exit 1
   }
+  pk3s_validate_source_compatibility "${addon_dir}/addon.yaml"
 
   for required_section in configure install validate clean backup; do
     if ! awk -v section="${required_section}" '
@@ -238,6 +242,7 @@ validate_stack_dir() {
     echo "Publishable stack source missing stack.yaml: ${stack_dir}" >&2
     exit 1
   }
+  pk3s_validate_source_compatibility "${stack_dir}/stack.yaml"
   while IFS= read -r addon_name; do
     [[ -n "${addon_name}" ]] || continue
     [[ -d "${REPO_DIR}/addons/${addon_name}" ]] || {

@@ -25,7 +25,18 @@ kind: Addon
 metadata:
   name: demo
   version: 0.1.0
+  sourceRevision: development
 spec:
+  compatibility:
+    requires:
+      core:
+        contract: artifact/v1
+        minVersion: 0.9.6
+        maxVersionExclusive: 0.10.0
+      kubernetes:
+        distros:
+          - k3s
+          - rke2
   type: shell
   impact:
     cluster: true
@@ -83,7 +94,18 @@ kind: Stack
 metadata:
   name: base
   version: 0.1.0
+  sourceRevision: development
 spec:
+  compatibility:
+    requires:
+      core:
+        contract: artifact/v1
+        minVersion: 0.9.6
+        maxVersionExclusive: 0.10.0
+      kubernetes:
+        distros:
+          - k3s
+          - rke2
   addons:
     - demo
 EOF
@@ -119,7 +141,18 @@ kind: Stack
 metadata:
   name: base
   version: 0.1.0
+  sourceRevision: development
 spec:
+  compatibility:
+    requires:
+      core:
+        contract: artifact/v1
+        minVersion: 0.9.6
+        maxVersionExclusive: 0.10.0
+      kubernetes:
+        distros:
+          - k3s
+          - rke2
   addons:
     - demo
     - missing-addon
@@ -168,7 +201,18 @@ kind: Addon
 metadata:
   name: demo
   version: 0.1.0
+  sourceRevision: development
 spec:
+  compatibility:
+    requires:
+      core:
+        contract: artifact/v1
+        minVersion: 0.9.6
+        maxVersionExclusive: 0.10.0
+      kubernetes:
+        distros:
+          - k3s
+          - rke2
   type: shell
   configure:
     script: scripts/configure.sh
@@ -215,3 +259,12 @@ if bash "${VALIDATOR}" "${INVALID_STACK_INPUT_REPO}" >/tmp/productive-k3s-addons
 fi
 grep -q "invalid stack runtime input source" /tmp/productive-k3s-addons-invalid-stack-input.out || fail "validator did not report invalid stack runtime input source"
 pass "validator rejects invalid stack runtime input metadata"
+
+INVALID_COMPAT_REPO="${WORK_DIR}/invalid-compatibility"
+cp -R "${VALID_REPO}" "${INVALID_COMPAT_REPO}"
+sed -i 's/contract: artifact\/v1/contract: artifact\/v2/' "${INVALID_COMPAT_REPO}/addons/demo/addon.yaml"
+if bash "${VALIDATOR}" "${INVALID_COMPAT_REPO}" >/tmp/productive-k3s-addons-invalid-compat.out 2>&1; then
+  fail "validator unexpectedly accepted an unknown compatibility contract"
+fi
+grep -q "requires Core contract artifact/v1" /tmp/productive-k3s-addons-invalid-compat.out || fail "validator did not report the unknown compatibility contract"
+pass "validator rejects unknown compatibility contracts"

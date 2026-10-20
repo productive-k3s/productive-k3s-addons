@@ -17,6 +17,18 @@ This repository now carries two different kinds of content:
 
 Core must remain valid without any predefined stack. This repository is where stack intent and add-on packages live.
 
+## Runtime compatibility contract
+
+Every add-on and stack source declares `metadata.version`, a development
+`metadata.sourceRevision`, and `spec.compatibility.requires`. Packaging replaces
+the development revision with the immutable Git commit used for the build.
+
+Published stacks also contain `spec.resolvedAddons`: an exact lock of every
+included add-on name, semantic version, bundled path, and SHA-256 digest. Core
+validates the stack, every nested add-on, and every digest before installation.
+Missing metadata, unknown contracts, and versions outside the declared
+`minVersion` / `maxVersionExclusive` window fail closed.
+
 Typical examples include cluster capabilities such as:
 
 - certificates
@@ -193,6 +205,14 @@ In the future, it may expose commands to discover or install addons.
 ## Status
 
 This repository is the public curated package layer for add-ons and stacks, including the `base` stack and the add-on-level host impact metadata consumed by Core.
+
+## Software Materials
+
+Every publishable add-on and stack owns a `materials.lock.yaml`. The Ops
+publication flow derives a resolved `bom.json`, embeds it in the TGZ, and emits
+a matching sidecar used by Catalogs for digest verification. Bundled Stacks
+reuse the resolved Addon archives and record both each nested archive digest
+and its BOM digest. Generated adapter components follow the same contract.
 
 ## License
 

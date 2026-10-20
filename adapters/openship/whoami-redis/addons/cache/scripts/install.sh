@@ -9,7 +9,7 @@ NAMESPACE="${PK3S_ADDON_NAMESPACE:-pk3s-openship-whoami-redis}"
 pk3s_addon_install() {
   "${HELM_BIN}" repo add bitnami https://charts.bitnami.com/bitnami >/dev/null 2>&1 || true
   "${HELM_BIN}" repo update >/dev/null
-  "${HELM_BIN}" upgrade --install "${RELEASE_NAME}" bitnami/redis \
+  "${HELM_BIN}" upgrade --install "${RELEASE_NAME}" bitnami/redis --version "28.3.1" \
     --namespace "${NAMESPACE}" \
     --create-namespace \
     -f "${VALUES_FILE}"
