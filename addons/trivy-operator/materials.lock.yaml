@@ -3,4 +3,8 @@ kind: MaterialsLock
 metadata: {owner: productive-k3s-addons, package: trivy-operator, version: 0.1.0}
 spec:
   materials:
-    - {id: trivy-operator-chart, type: helm-chart, name: trivy-operator, version: 0.35.0, source: "https://aquasecurity.github.io/helm-charts", pinPolicy: exact, required: true}
+    - {id: trivy-operator-chart, type: helm-chart, name: trivy-operator, version: 0.35.0, source: "https://aquasecurity.github.io/helm-charts", pinPolicy: exact-digest, digest: "sha256:c9bbd17603e808f7d9eac3d02a826a717164888bd4a045a4178efcfc2ee22a6b", required: true}
+    - {id: trivy-operator-image, type: container-image, name: mirror.gcr.io/aquasec/trivy-operator, version: 0.33.0, source: "mirror.gcr.io/aquasec/trivy-operator", pinPolicy: exact-digest, digest: "sha256:ce5e4d5eeaf211b4e2091ed3209ce9676fd6bd7fb2f22f782559574a01ac219e", required: true}
+    - {id: trivy-image, type: container-image, name: mirror.gcr.io/aquasec/trivy, version: 0.73.0, source: "mirror.gcr.io/aquasec/trivy", pinPolicy: exact-digest, digest: "sha256:7cced7cae583819fc7806d4cbc0dbbc7cad18b99f7d3e235192e6da8c091045c", required: false}
+    - {id: node-collector-image, type: container-image, name: ghcr.io/aquasecurity/node-collector, version: 0.3.1, source: "ghcr.io/aquasecurity/node-collector", pinPolicy: exact-digest, digest: "sha256:f4702ce4667388f0219d6248d623a7e816231c2d4561d6af01c3ae053e524025", required: false}
+    - {id: trivy-checks-bundle, type: container-image, name: mirror.gcr.io/aquasec/trivy-checks, version: 1, source: "mirror.gcr.io/aquasec/trivy-checks", pinPolicy: exact-digest, digest: "sha256:0491169789b867ae5a7353381220c1d4d97b3a0d6d9dfd84a25d06f0ba68aa93", required: false}

@@ -9,7 +9,8 @@ Longhorn is not required. The default install keeps Argo CD available inside the
 - Namespace: `argocd`
 - Helm repository: `https://argoproj.github.io/argo-helm`
 - Chart: `argo/argo-cd`
-- Chart version: `10.8.1`
+- Chart version: `10.8.1`, verified by archive SHA-256
+- Runtime and supported optional images, including Redis HA sysctl tooling: pinned by multi-architecture digest in `values.yaml` and `materials.lock.yaml`
 - Ingress: disabled unless `PK3S_ARGOCD_INGRESS_ENABLED=y`
 - Hostname: `argocd.k3s.lab.internal`
 - TLS source: existing secret/cert-manager path when ingress is enabled
@@ -20,6 +21,7 @@ Longhorn is not required. The default install keeps Argo CD available inside the
 ## Configuration
 
 - `PK3S_ARGOCD_CHART_VERSION`
+- `PK3S_ARGOCD_CHART_SHA256` (must match the selected chart archive)
 - `PK3S_ARGOCD_HOST`
 - `PK3S_ARGOCD_INGRESS_ENABLED`
 - `PK3S_ARGOCD_TLS_ENABLED`

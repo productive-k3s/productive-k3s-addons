@@ -1,0 +1,51 @@
+admissionController:
+  initContainer:
+    image:
+      tag: "v1.19.0@sha256:3fd1640d9c77181be107d3e3c5fb9efcab9d98494bede51b64f93bf591a20276"
+  container:
+    image:
+      tag: "v1.19.0@sha256:e5bf3b96de9ad9475f5282804859e5c8f09d351d4fb988d1c1ee77f825591742"
+backgroundController:
+  image:
+    tag: "v1.19.0@sha256:5d9a49b0a36bb25c981bd55e57f360850ea37bfe1b4914e00ec898cc5d27cc4f"
+cleanupController:
+  image:
+    tag: "v1.19.0@sha256:6f76c84d5305898d4db455515cdb80a8af81fbfe3ac4cecad43e39266ba13944"
+reportsController:
+  image:
+    tag: "v1.19.0@sha256:02013e2288600f514b71f814699441007fcce7aff188f1eb9e8c5da877c6e911"
+crds:
+  migration:
+    image:
+      tag: "v1.19.0@sha256:f40718123e3eea8dc36960023e2af7a980bcc76dec24842ad8705c82f4c9172e"
+test:
+  image:
+    tag: "v1.19.0@sha256:a167e4cd18c0958a2e6bac08146feb317d4dc492a86d68f709af15a51788d268"
+webhooksCleanup:
+  image:
+    tag: "v1.19.0@sha256:a167e4cd18c0958a2e6bac08146feb317d4dc492a86d68f709af15a51788d268"
+reports-server:
+  image:
+    registry: ghcr.io
+    repository: kyverno/reports-server
+    tag: "v0.1.6@sha256:8e66a7b296441950d8f91d2af793c1b6a7ef097c26c14e744bba37615dbe4231"
+  apiServicesManagement:
+    image:
+      registry: docker.io
+      repository: bitnamilegacy/kubectl
+      tag: "1.30.2@sha256:dc190b7c6b87ba74eabff4e1e78758eed95ebb97b5a186bbdaf2b43625f9a62a"
+  postgresql:
+    image:
+      registry: docker.io
+      repository: bitnamilegacy/postgresql
+      tag: "16.1.0-debian-11-r22@sha256:2c2dddcaee2ffa5147acbc415c3107403c3753913d2b355963ad4e1c9130bd89"
+    metrics:
+      image:
+        registry: docker.io
+        repository: bitnamilegacy/postgres-exporter
+        tag: "0.15.0-debian-11-r6@sha256:103ca8e0aa9fae8163a4e6c79d4a9dbe9a48fae414a14aeae3fd8cc539050058"
+    volumePermissions:
+      image:
+        registry: docker.io
+        repository: bitnamilegacy/os-shell
+        tag: "11-debian-11-r95@sha256:d44e4df92f846e7cfbac27c9454c5f5966dfbb8dff8e56a682f24e815dc65626"

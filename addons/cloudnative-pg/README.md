@@ -9,13 +9,16 @@ The operator remains independently installable. The curated `database` and `geos
 - Operator namespace: `cnpg-system`
 - Helm repository: `https://cloudnative-pg.github.io/charts`
 - Chart: `cnpg/cloudnative-pg`
-- Chart version: `0.29.0`
+- Chart version: `0.29.0`, verified by archive SHA-256
+- Operator image: pinned by multi-architecture digest in `values.yaml` and `materials.lock.yaml`
 - Database namespace: `database`
 - Cluster name: `pk3s-postgres`
 - Database name: `app`
 - Instances: `1`
 - Storage size: `10Gi`
 - StorageClass: unset, which lets Kubernetes use the cluster default
+
+Override chart identity only as a pair with `PK3S_CLOUDNATIVE_PG_CHART_VERSION` and `PK3S_CLOUDNATIVE_PG_CHART_SHA256`; a mismatched archive fails before installation.
 
 ## Secret Contract
 

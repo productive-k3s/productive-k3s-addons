@@ -9,10 +9,11 @@ This add-on does not enable broad enforcement by default. The shipped ClusterPol
 - Namespace: `kyverno`
 - Helm repository: `https://kyverno.github.io/kyverno/`
 - Chart: `kyverno/kyverno`
-- Chart version: `3.9.0`
+- Chart version: `3.9.0`, verified by archive SHA-256
+- Controller, hook, migration, test, and optional reports-server/PostgreSQL helper images: pinned by multi-architecture digest in `values.yaml` and `materials.lock.yaml`
 - Policy validation failure action: `Audit`
 
-Override the chart version with `PK3S_KYVERNO_CHART_VERSION`.
+Override chart identity only as a pair with `PK3S_KYVERNO_CHART_VERSION` and `PK3S_KYVERNO_CHART_SHA256`; a mismatched archive fails before installation.
 
 ## Included Policies
 

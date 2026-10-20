@@ -1,0 +1,9 @@
+image:
+  tag: "0.33.0@sha256:ce5e4d5eeaf211b4e2091ed3209ce9676fd6bd7fb2f22f782559574a01ac219e"
+trivy:
+  image:
+    tag: "0.73.0@sha256:7cced7cae583819fc7806d4cbc0dbbc7cad18b99f7d3e235192e6da8c091045c"
+nodeCollector:
+  tag: "0.3.1@sha256:f4702ce4667388f0219d6248d623a7e816231c2d4561d6af01c3ae053e524025"
+policiesBundle:
+  tag: "1@sha256:0491169789b867ae5a7353381220c1d4d97b3a0d6d9dfd84a25d06f0ba68aa93"
