@@ -3,4 +3,7 @@ kind: MaterialsLock
 metadata: {owner: productive-k3s-addons, package: nginx, version: 0.1.0}
 spec:
   materials:
-    - {id: nginx-chart, type: helm-chart, name: nginx, version: 25.2.1, source: "https://charts.bitnami.com/bitnami", pinPolicy: exact, required: true}
+    - {id: nginx-chart, type: helm-chart, name: nginx, version: 25.2.1, source: "https://charts.bitnami.com/bitnami", pinPolicy: exact-digest, digest: "sha256:a31c7a2881593607945741f11a49525958ca3cdee91d70d19323c2bd7f8d8867", required: true}
+    - {id: nginx-image, type: container-image, name: bitnami/nginx, version: 1.31.6, source: "docker.io/bitnami/nginx", pinPolicy: exact-digest, digest: "sha256:fb69e7a082a5e90c42650ee5bfedec42628f0dd1fd89a354906eac2fb86e409b", required: true}
+    - {id: git-image, type: container-image, name: bitnami/git, version: 2.56.0, source: "docker.io/bitnami/git", pinPolicy: exact-digest, digest: "sha256:381747741f3aba9e1818d6e1f16acd267391957efc7fbd0db55c59da4854885b", required: false}
+    - {id: nginx-exporter-image, type: container-image, name: bitnami/nginx-exporter, version: 1.5.3, source: "docker.io/bitnami/nginx-exporter", pinPolicy: exact-digest, digest: "sha256:a76b53000a2098b65457851e1b1d190a8beecd0d296deabd6d5c96493babf1c0", required: false}

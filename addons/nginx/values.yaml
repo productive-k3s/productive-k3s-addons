@@ -1,6 +1,20 @@
 service:
   type: ClusterIP
 
+image:
+  tag: 1.31.6
+  digest: sha256:fb69e7a082a5e90c42650ee5bfedec42628f0dd1fd89a354906eac2fb86e409b
+
+cloneStaticSiteFromGit:
+  image:
+    tag: 2.56.0
+    digest: sha256:381747741f3aba9e1818d6e1f16acd267391957efc7fbd0db55c59da4854885b
+
+metrics:
+  image:
+    tag: 1.5.3
+    digest: sha256:a76b53000a2098b65457851e1b1d190a8beecd0d296deabd6d5c96493babf1c0
+
 resources:
   requests:
     cpu: 100m
