@@ -105,7 +105,16 @@ pk3s_stage_addon_dir() {
   local addon_dir="$1"
   local stage_dir="$2"
   local source_revision="$3"
+  local runtime_scripts_dir="${4:-}"
   cp -R "${addon_dir}/." "${stage_dir}/"
+
+  if grep -Rqs 'verified-helm-chart.sh' "${addon_dir}/scripts"; then
+    [[ -f "${runtime_scripts_dir}/verified-helm-chart.sh" ]] || {
+      printf 'verified Helm chart helper not found while packaging %s\n' "${addon_dir}" >&2
+      return 1
+    }
+    cp "${runtime_scripts_dir}/verified-helm-chart.sh" "${stage_dir}/scripts/verified-helm-chart.sh"
+  fi
   awk -v revision="${source_revision}" '
     /^  sourceRevision:/ { print "  sourceRevision: " revision; found=1; next }
     /^spec:/ && !found { print "  sourceRevision: " revision; found=1 }
@@ -172,7 +181,7 @@ pk3s_package_addon() {
   mkdir -p "$(dirname "${output_path}")"
   stage_dir="$(mktemp -d)"
   source_revision="$(pk3s_source_revision "${repo_dir}")"
-  pk3s_stage_addon_dir "${addon_dir}" "${stage_dir}" "${source_revision}"
+  pk3s_stage_addon_dir "${addon_dir}" "${stage_dir}" "${source_revision}" "${repo_dir}/scripts"
   tar -czf "${output_path}" -C "${stage_dir}" .
   rm -rf "${stage_dir}"
 }
