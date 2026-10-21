@@ -1,0 +1,11 @@
+image:
+  tag: "v2.14.2@sha256:5d312a1b520fafb0f4650bc06ac9896158f65f41f4f2780a7af723e523987143"
+postDelete:
+  image:
+    tag: "v0.7.0@sha256:b07e6c97da2a47f9b059ebf1b9ba4b67cc837b0dd024622a75f6adc8c5714794"
+preUpgrade:
+  image:
+    tag: "v0.7.0@sha256:b07e6c97da2a47f9b059ebf1b9ba4b67cc837b0dd024622a75f6adc8c5714794"
+auditLog:
+  image:
+    tag: "15.6.24.2@sha256:6d9cbebabbf60987f7976263b193337bbb69d8408c5ed89df56c09ef30cece9f"

@@ -83,7 +83,7 @@ spec:
     spec:
       containers:
         - name: postgresql
-          image: "{{ .Values.postgis.image.repository }}:{{ .Values.postgis.image.tag }}"
+          image: "{{ .Values.postgis.image.repository }}:{{ .Values.postgis.image.tag }}@{{ .Values.postgis.image.digest }}"
           imagePullPolicy: {{ .Values.postgis.image.pullPolicy }}
           ports:
             - name: postgresql

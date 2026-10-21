@@ -3,12 +3,15 @@ set -euo pipefail
 
 ADDON_SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "${ADDON_SCRIPT_DIR}/../../../scripts/addon-host-runtime.sh"
+source "${ADDON_SCRIPT_DIR}/../../../scripts/verified-helm-chart.sh"
 
 KUBECTL_BIN="${PK3S_KUBECTL_BIN:-kubectl}"
 HELM_BIN="${PK3S_HELM_BIN:-helm}"
 GEOSERVER_NAMESPACE="${PK3S_GEOSERVER_NAMESPACE:-geoserver}"
 GEOSERVER_RELEASE_NAME="${PK3S_GEOSERVER_RELEASE_NAME:-geoserver-cloud}"
 GEOSERVER_CHART_DIR="${PK3S_GEOSERVER_CHART_DIR:-${ADDON_SCRIPT_DIR}/../chart}"
+GEOSERVER_CHART_SHA256="${PK3S_GEOSERVER_CHART_SHA256:-0ab9bdce03187e6010538145a56427335b00a538f16889dfd60c23f9e1822af2}"
+RABBITMQ_CHART_SHA256="${PK3S_RABBITMQ_CHART_SHA256:-fa3b781ca25871ffa61da4422615e3aa14054946a8dac91c6ffd19a58de5dd6d}"
 GEOSERVER_HOST="${PK3S_GEOSERVER_HOST:-geoserver.k3s.lab.internal}"
 GEOSERVER_INGRESS_ENABLED="${PK3S_GEOSERVER_INGRESS_ENABLED:-n}"
 GEOSERVER_TLS_ENABLED="${PK3S_GEOSERVER_TLS_ENABLED:-y}"
@@ -30,14 +33,13 @@ kctl() {
 pk3s_addon_install() {
   kctl create namespace "${GEOSERVER_NAMESPACE}" >/dev/null 2>&1 || true
 
-  "${HELM_BIN}" repo add camptocamp-geoserver-cloud https://camptocamp.github.io/helm-geoserver-cloud >/dev/null 2>&1 || true
-  "${HELM_BIN}" repo update camptocamp-geoserver-cloud >/dev/null
+  pk3s_verify_file_sha256 "${GEOSERVER_CHART_DIR}/charts/geoservercloud-3.0.1.tgz" "${GEOSERVER_CHART_SHA256}" "GeoServer Cloud chart archive"
+  pk3s_verify_file_sha256 "${GEOSERVER_CHART_DIR}/charts/rabbitmq-14.4.0.tgz" "${RABBITMQ_CHART_SHA256}" "RabbitMQ chart archive"
 
   local helm_args=(
     upgrade --install "${GEOSERVER_RELEASE_NAME}" "${GEOSERVER_CHART_DIR}"
     --namespace "${GEOSERVER_NAMESPACE}"
     --create-namespace
-    --dependency-update
     --wait
     --timeout 20m
   )

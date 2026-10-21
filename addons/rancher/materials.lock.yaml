@@ -3,4 +3,7 @@ kind: MaterialsLock
 metadata: {owner: productive-k3s-addons, package: rancher, version: 0.1.0}
 spec:
   materials:
-    - {id: rancher-chart, type: helm-chart, name: rancher, version: v2.14.2, source: "https://releases.rancher.com/server-charts/stable", pinPolicy: exact, required: true}
+    - {id: rancher-chart, type: helm-chart, name: rancher, version: v2.14.2, source: "https://releases.rancher.com/server-charts/stable", pinPolicy: exact-digest, digest: "sha256:3ff319362e174636bf8b719dcc2541cb1988cf49109ea50cc7207e18de2b3b4a", required: true}
+    - {id: rancher-image, type: container-image, name: rancher/rancher, version: v2.14.2, source: "docker.io/rancher/rancher", pinPolicy: exact-digest, digest: "sha256:5d312a1b520fafb0f4650bc06ac9896158f65f41f4f2780a7af723e523987143", required: true}
+    - {id: rancher-shell-image, type: container-image, name: rancher/shell, version: v0.7.0, source: "docker.io/rancher/shell", pinPolicy: exact-digest, digest: "sha256:b07e6c97da2a47f9b059ebf1b9ba4b67cc837b0dd024622a75f6adc8c5714794", required: true}
+    - {id: rancher-audit-log-image, type: container-image, name: rancher/mirrored-bci-micro, version: 15.6.24.2, source: "docker.io/rancher/mirrored-bci-micro", pinPolicy: exact-digest, digest: "sha256:6d9cbebabbf60987f7976263b193337bbb69d8408c5ed89df56c09ef30cece9f", required: false}

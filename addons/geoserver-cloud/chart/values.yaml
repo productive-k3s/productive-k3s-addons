@@ -3,6 +3,12 @@ rabbitmq:
   image:
     repository: bitnamilegacy/rabbitmq
     tag: 3.12.14-debian-12-r0
+    digest: sha256:24e748a477f926ac4141fff8d6730951958e847a2d075f9973dfd977abdcef52
+  volumePermissions:
+    image:
+      repository: bitnamilegacy/os-shell
+      tag: 12-debian-12-r22
+      digest: sha256:61a67d35734fded998f199db762b88a1004abad115acb6ca473a7ef82dc3d31a
   auth:
     username: geoserver
     password: password
@@ -22,6 +28,7 @@ postgis:
   image:
     repository: postgis/postgis
     tag: 16-3.4-alpine
+    digest: sha256:681931a625df344215e9b8998bf34daf146b6a395ceacee4439eb9c85869239f
     pullPolicy: IfNotPresent
   auth:
     postgresPassword: g30s3rv3r
@@ -51,6 +58,8 @@ geoservercloud:
           path: /geoserver/
         containers:
           spring:
+            image:
+              sha: de0b20bd2a4393bac7b9923e63f6e03611648bd749834434f170e9bfc9c0e47d
             resources: &gscloud-resources
               requests:
                 cpu: 100m
@@ -110,40 +119,60 @@ geoservercloud:
         enabled: true
         containers:
           spring:
+            image:
+              sha: 4f91e3048ac894a476a1e84c2a018d2fb8e9d933fb88d1a6556386bdc2bf1bde
             resources: *gscloud-resources
             env: *gscloud-env
       rest:
         enabled: true
         containers:
           spring:
+            image:
+              sha: 318254b52f967de74ffbef8efcf1f7d8cf81035e6b8145ea5d42d6e8a65fd301
             resources: *gscloud-resources
             env: *gscloud-env
       wms:
         enabled: true
         containers:
           spring:
+            image:
+              sha: 5164f687ce4d853690802e304022ce540e4f0144a08e88d63112fa2da84fa1f7
             resources: *gscloud-resources
             env: *gscloud-env
       wfs:
         enabled: true
         containers:
           spring:
+            image:
+              sha: 299f0d6232d1aa7a94afce0394fa8d5465e03b3f890b445c7876a62d55259ddc
             resources: *gscloud-resources
             env: *gscloud-env
       wcs:
         enabled: false
+        containers:
+          spring:
+            image:
+              sha: 4f077124f59154ba60b110466776cd4bd2aafabf7738a26e958b8c92d4af376d
       wps:
         enabled: false
+        containers:
+          spring:
+            image:
+              sha: 0b41bd2c9a76cc0bc9e7f21294472026597c41dd1a0b1bac1aa758b9c6ed53fb
       gwc:
         enabled: true
         containers:
           spring:
+            image:
+              sha: b04ed89b5d2b0ce41cc50dabe0250dcdf1368b6c65f9ad81bc239695700fe794
             resources: *gscloud-resources
             env: *gscloud-env
       acl:
         enabled: true
         containers:
           spring:
+            image:
+              sha: 6f42d4139cb0270120fd06ad61d4c3e7cc01daf318c372774a8814c5bea636f4
             resources: *gscloud-resources
             env:
               GEOSERVER_BUS_ENABLED:

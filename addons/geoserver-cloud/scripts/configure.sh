@@ -11,7 +11,7 @@ pk3s_addon_configure() {
     details)
       write_addon_config_var "${output_file}" "GEOSERVER_NAMESPACE" "${GEOSERVER_NAMESPACE:-geoserver}"
       write_addon_config_var "${output_file}" "GEOSERVER_RELEASE_NAME" "${GEOSERVER_RELEASE_NAME:-geoserver-cloud}"
-      write_addon_config_var "${output_file}" "GEOSERVER_CHART" "camptocamp/geoservercloud:3.0.1"
+      write_addon_config_var "${output_file}" "GEOSERVER_CHART" "vendored/geoservercloud:3.0.1"
       write_addon_config_var "${output_file}" "GEOSERVER_PROFILE" "standalone,pgconfig,acl"
       ;;
     *)

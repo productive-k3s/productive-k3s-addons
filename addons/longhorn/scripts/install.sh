@@ -3,11 +3,14 @@ set -euo pipefail
 
 ADDON_SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "${ADDON_SCRIPT_DIR}/../../../scripts/addon-host-runtime.sh"
+source "${ADDON_SCRIPT_DIR}/../../../scripts/verified-helm-chart.sh"
 
 KUBECTL_BIN="${PK3S_KUBECTL_BIN:-kubectl}"
 HELM_BIN="${PK3S_HELM_BIN:-helm}"
 KUBECTL_MODE="${PK3S_KUBECTL_MODE:-kubectl}"
 LONGHORN_VERSION="${PK3S_LONGHORN_VERSION:-v1.11.1}"
+LONGHORN_CHART_SHA256="${PK3S_LONGHORN_CHART_SHA256:-a93f60052e5e6e308d07e93fb3ecc0e4d336bbd323b725f0689df2e4d695245b}"
+LONGHORN_VALUES_FILE="${PK3S_LONGHORN_VALUES_FILE:-${ADDON_SCRIPT_DIR}/../values.yaml}"
 LONGHORN_DATA_PATH="${PK3S_LONGHORN_DATA_PATH:-/data}"
 LONGHORN_REPLICA_COUNT="${PK3S_LONGHORN_REPLICA_COUNT:-1}"
 LONGHORN_SINGLE_NODE_MODE="${PK3S_LONGHORN_SINGLE_NODE_MODE:-n}"
@@ -32,6 +35,7 @@ kctl() {
 }
 
 pk3s_addon_install() {
+  local chart_dir chart_archive
   pk3s_ensure_packages_optional "Longhorn" open-iscsi jq
   pk3s_enable_service_optional iscsid
   pk3s_runtime_warn "Longhorn storage path '${LONGHORN_DATA_PATH}' will be created if missing."
@@ -39,13 +43,16 @@ pk3s_addon_install() {
   pk3s_ensure_directory_optional "${LONGHORN_DATA_PATH}"
 
   kctl create namespace longhorn-system >/dev/null 2>&1 || true
-  "${HELM_BIN}" repo add longhorn https://charts.longhorn.io >/dev/null 2>&1 || true
-  "${HELM_BIN}" repo update >/dev/null
-  "${HELM_BIN}" upgrade --install longhorn longhorn/longhorn \
+  chart_dir="$(mktemp -d)"
+  trap "rm -rf '${chart_dir}'" EXIT
+  chart_archive="$(pk3s_pull_verified_helm_chart "${HELM_BIN}" longhorn https://charts.longhorn.io longhorn "${LONGHORN_VERSION}" "${LONGHORN_CHART_SHA256}" "${chart_dir}")"
+  "${HELM_BIN}" upgrade --install longhorn "${chart_archive}" \
     --namespace longhorn-system \
-    --version "${LONGHORN_VERSION}" \
+    -f "${LONGHORN_VALUES_FILE}" \
     --set defaultSettings.defaultReplicaCount="${LONGHORN_REPLICA_COUNT}" \
     --set defaultSettings.defaultDataPath="${LONGHORN_DATA_PATH}"
+  rm -rf "${chart_dir}"
+  trap - EXIT
   kctl -n longhorn-system rollout status deployment/longhorn-driver-deployer --timeout=10m
 
   if [[ "${LONGHORN_SINGLE_NODE_MODE}" == "y" ]]; then

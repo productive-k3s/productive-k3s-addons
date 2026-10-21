@@ -12,9 +12,12 @@ through `pgconfig`, and GeoServer ACL is enabled.
 - Namespace: `geoserver`
 - Helm release: `geoserver-cloud`
 - Wrapper chart: `pk3s-geoserver-cloud`
-- Upstream chart: `geoservercloud` `3.0.1`
+- Vendored upstream chart: `geoservercloud` `3.0.1`, verified by archive SHA-256
+- Vendored RabbitMQ chart: `14.4.0`, verified by archive SHA-256 and tracked by
+  its OCI manifest digest
 - GeoServer Cloud image tag: `3.0.1.1`
 - RabbitMQ image tag: `3.12.14-debian-12-r0`
+- Runtime and supported optional images: pinned by multi-architecture digest
 - Spring profile: `standalone,pgconfig,acl`
 - Hostname: `geoserver.k3s.lab.internal`
 - Ingress: disabled unless `PK3S_GEOSERVER_INGRESS_ENABLED=y`
@@ -37,6 +40,11 @@ The wrapper chart includes:
 This topology is meant for community validation and local/small cluster use. It
 is not HA: PostGIS and RabbitMQ persistence are disabled by default so stack
 verification can run on a disposable one-node Multipass cluster.
+
+Installation is intentionally offline with respect to Helm dependencies: it
+uses the two chart archives packaged under `chart/charts/` and fails closed if
+either archive differs from its expected SHA-256. It does not run Helm
+dependency updates during installation.
 
 ## Catalog And ACL Behavior
 
