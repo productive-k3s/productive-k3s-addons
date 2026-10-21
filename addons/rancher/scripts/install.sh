@@ -3,11 +3,14 @@ set -euo pipefail
 
 ADDON_SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "${ADDON_SCRIPT_DIR}/../../../scripts/addon-host-runtime.sh"
+source "${ADDON_SCRIPT_DIR}/../../../scripts/verified-helm-chart.sh"
 
 KUBECTL_BIN="${PK3S_KUBECTL_BIN:-kubectl}"
 HELM_BIN="${PK3S_HELM_BIN:-helm}"
 KUBECTL_MODE="${PK3S_KUBECTL_MODE:-kubectl}"
 RANCHER_VERSION="${PK3S_RANCHER_VERSION:-v2.14.2}"
+RANCHER_CHART_SHA256="${PK3S_RANCHER_CHART_SHA256:-3ff319362e174636bf8b719dcc2541cb1988cf49109ea50cc7207e18de2b3b4a}"
+RANCHER_VALUES_FILE="${PK3S_RANCHER_VALUES_FILE:-${ADDON_SCRIPT_DIR}/../values.yaml}"
 RANCHER_HOST="${PK3S_RANCHER_HOST:-rancher.k3s.lab.internal}"
 BOOTSTRAP_PASSWORD="${PK3S_RANCHER_BOOTSTRAP_PASSWORD:-admin}"
 TLS_SOURCE="${PK3S_TLS_SOURCE:-secret}"
@@ -74,9 +77,11 @@ ensure_rancher_private_ca_secret() {
 }
 
 pk3s_addon_install() {
+  local chart_dir chart_archive
   kctl create namespace cattle-system >/dev/null 2>&1 || true
-  "${HELM_BIN}" repo add rancher-stable https://releases.rancher.com/server-charts/stable >/dev/null 2>&1 || true
-  "${HELM_BIN}" repo update >/dev/null
+  chart_dir="$(mktemp -d)"
+  trap "rm -rf '${chart_dir}'" EXIT
+  chart_archive="$(pk3s_pull_verified_helm_chart "${HELM_BIN}" rancher-stable https://releases.rancher.com/server-charts/stable rancher "${RANCHER_VERSION}" "${RANCHER_CHART_SHA256}" "${chart_dir}")"
 
   if [[ "${TLS_SOURCE}" == "secret" ]]; then
     kctl apply -f - <<EOF
@@ -96,18 +101,18 @@ EOF
     wait_secret cattle-system rancher-tls
     wait_certificate_ready cattle-system rancher-tls
     ensure_rancher_private_ca_secret
-    "${HELM_BIN}" upgrade --install rancher rancher-stable/rancher \
+    "${HELM_BIN}" upgrade --install rancher "${chart_archive}" \
       --namespace cattle-system \
-      --version "${RANCHER_VERSION}" \
+      -f "${RANCHER_VALUES_FILE}" \
       --set hostname="${RANCHER_HOST}" \
       --set bootstrapPassword="${BOOTSTRAP_PASSWORD}" \
       --set ingress.ingressClassName="${INGRESS_CLASS_NAME}" \
       --set ingress.tls.source=secret \
       --set privateCA="${PRIVATE_CA}"
   else
-    "${HELM_BIN}" upgrade --install rancher rancher-stable/rancher \
+    "${HELM_BIN}" upgrade --install rancher "${chart_archive}" \
       --namespace cattle-system \
-      --version "${RANCHER_VERSION}" \
+      -f "${RANCHER_VALUES_FILE}" \
       --set hostname="${RANCHER_HOST}" \
       --set bootstrapPassword="${BOOTSTRAP_PASSWORD}" \
       --set ingress.ingressClassName="${INGRESS_CLASS_NAME}" \
@@ -115,6 +120,9 @@ EOF
       --set letsEncrypt.email="${LE_EMAIL}" \
       --set letsEncrypt.environment="${LE_ENVIRONMENT}"
   fi
+
+  rm -rf "${chart_dir}"
+  trap - EXIT
 
   kctl -n cattle-system rollout status deployment/rancher --timeout=10m || true
 

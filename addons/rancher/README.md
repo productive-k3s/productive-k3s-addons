@@ -7,9 +7,15 @@ This package expects cluster prerequisites to be handled externally:
 - `cert-manager` must already exist for TLS-driven installs
 - any referenced `ClusterIssuer` must already exist
 
+The package downloads Rancher chart `v2.14.2`, verifies its archive SHA-256,
+and pins the server, lifecycle-hook, and optional audit-log images by
+multi-architecture digest in `values.yaml` and `materials.lock.yaml`.
+
 Supported environment overrides:
 
 - `PK3S_RANCHER_VERSION`
+- `PK3S_RANCHER_CHART_SHA256` (must match the selected chart archive)
+- `PK3S_RANCHER_VALUES_FILE`
 - `PK3S_RANCHER_HOST`
 - `PK3S_RANCHER_BOOTSTRAP_PASSWORD`
 - `PK3S_TLS_SOURCE` (`letsencrypt` or `secret`)
