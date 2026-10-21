@@ -53,4 +53,23 @@ PK3S_EXPECTED_ADDON_DIGEST="" \
 KUBECONFIG="${KUBECONFIG_PATH}" \
   bash "${REPO_DIR}/tests/addons/run.sh" live "${ADDON_NAME}" "${FAKE_CORE_DIR}"
 
-printf '[PASS] live add-on runner installs immutable packaged artifacts\n'
+for packaged_addon in argocd cloudnative-pg geoserver-cloud kyverno longhorn rancher trivy-operator; do
+  packaged_tgz="${WORK_DIR}/${packaged_addon}.tgz"
+  packaged_root="${WORK_DIR}/runtime/${packaged_addon}"
+  addon_root="${packaged_root}/addons/${packaged_addon}"
+  mkdir -p "${addon_root}" "${packaged_root}/scripts"
+  pk3s_package_addon "${REPO_DIR}" "${packaged_addon}" "${packaged_tgz}"
+  tar -xzf "${packaged_tgz}" -C "${addon_root}"
+  cp "${REPO_DIR}/scripts/addon-host-runtime.sh" "${packaged_root}/scripts/addon-host-runtime.sh"
+
+  cmp "${REPO_DIR}/scripts/verified-helm-chart.sh" "${addon_root}/scripts/verified-helm-chart.sh" >/dev/null || {
+    printf '[FAIL] %s package does not contain the verified Helm chart helper\n' "${packaged_addon}" >&2
+    exit 1
+  }
+  bash -c 'source "$1"; declare -F pk3s_pull_verified_helm_chart >/dev/null' _ "${addon_root}/scripts/install.sh" || {
+    printf '[FAIL] %s packaged installer cannot load its runtime helpers\n' "${packaged_addon}" >&2
+    exit 1
+  }
+done
+
+printf '[PASS] live add-on artifacts are immutable and contain their runtime helpers\n'

@@ -3,7 +3,9 @@ set -euo pipefail
 
 ADDON_SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "${ADDON_SCRIPT_DIR}/../../../scripts/addon-host-runtime.sh"
-source "${ADDON_SCRIPT_DIR}/../../../scripts/verified-helm-chart.sh"
+VERIFIED_HELM_CHART_SCRIPT="${ADDON_SCRIPT_DIR}/verified-helm-chart.sh"
+[[ -f "${VERIFIED_HELM_CHART_SCRIPT}" ]] || VERIFIED_HELM_CHART_SCRIPT="${ADDON_SCRIPT_DIR}/../../../scripts/verified-helm-chart.sh"
+source "${VERIFIED_HELM_CHART_SCRIPT}"
 
 KUBECTL_BIN="${PK3S_KUBECTL_BIN:-kubectl}"
 HELM_BIN="${PK3S_HELM_BIN:-helm}"
