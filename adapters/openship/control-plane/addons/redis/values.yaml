@@ -1,7 +1,45 @@
+global:
+  security:
+    allowInsecureImages: true
 fullnameOverride: redis
+image:
+  registry: docker.io
+  repository: bitnamilegacy/redis
+  tag: 8.2.1-debian-12-r0
+  digest: sha256:25bf63f3caf75af4628c0dfcf39859ad1ac8abe135be85e99699f9637b16dc28
 architecture: standalone
 auth:
   enabled: false
 master:
   persistence:
     enabled: false
+sentinel:
+  image:
+    registry: docker.io
+    repository: bitnamilegacy/redis-sentinel
+    tag: 8.2.1-debian-12-r0
+    digest: sha256:0ca3ea1d2f823c2d9265e0d9e682dc435f219f8d3385aed75b5bb0f365f516a9
+metrics:
+  image:
+    registry: docker.io
+    repository: bitnamilegacy/redis-exporter
+    tag: 1.76.0-debian-12-r0
+    digest: sha256:d111b8a14d96f7edd67324776d6801b76023035d9390d03fbb13d1c21bda8b88
+kubectl:
+  image:
+    registry: docker.io
+    repository: bitnamilegacy/kubectl
+    tag: 1.33.4-debian-12-r0
+    digest: sha256:ed0b31a0508da84ee655c5c6e01bd3897fc56ad6cf69debb27fa1893a06d2246
+volumePermissions:
+  image:
+    registry: docker.io
+    repository: bitnamilegacy/os-shell
+    tag: 12-debian-12-r51
+    digest: sha256:77e65e9d633ec1463f8bea185763aa7ef91e5ddbe0b60beb1b0b5d4da58882b6
+sysctl:
+  image:
+    registry: docker.io
+    repository: bitnamilegacy/os-shell
+    tag: 12-debian-12-r51
+    digest: sha256:77e65e9d633ec1463f8bea185763aa7ef91e5ddbe0b60beb1b0b5d4da58882b6
