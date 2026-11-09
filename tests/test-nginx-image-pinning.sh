@@ -2,9 +2,11 @@
 set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+source "${ROOT_DIR}/scripts/verified-helm-chart.sh"
 VALUES_FILE="${ROOT_DIR}/addons/nginx/values.yaml"
 LOCK_FILE="${ROOT_DIR}/addons/nginx/materials.lock.yaml"
 CHART_VERSION="25.2.1"
+CHART_OCI_MIRROR="oci://mirror.gcr.io/bitnamicharts/nginx"
 
 fail() {
   printf '[FAIL] %s\n' "$*" >&2
@@ -21,12 +23,18 @@ fi
 expected_chart_sha256="$(grep 'id: nginx-chart' "${LOCK_FILE}" | grep -oE 'sha256:[0-9a-f]{64}' | head -1 | cut -d: -f2)"
 [[ -n "${expected_chart_sha256}" ]] || fail "nginx chart digest is missing from MaterialsLock"
 
-chart_dir="$(mktemp -d)"
-rendered="$(mktemp)"
-trap 'rm -rf "${chart_dir}"; rm -f "${rendered}"' EXIT
-helm pull bitnami/nginx --version "${CHART_VERSION}" --destination "${chart_dir}"
-actual_chart_sha256="$(sha256sum "${chart_dir}/nginx-${CHART_VERSION}.tgz" | awk '{print $1}')"
-[[ "${actual_chart_sha256}" == "${expected_chart_sha256}" ]] || fail "nginx chart digest does not match MaterialsLock"
+work_dir="$(mktemp -d)"
+trap 'rm -rf "${work_dir}"' EXIT
+export HELM_CONFIG_HOME="${work_dir}/helm/config"
+export HELM_CACHE_HOME="${work_dir}/helm/cache"
+export HELM_DATA_HOME="${work_dir}/helm/data"
+mkdir -p "${HELM_CONFIG_HOME}" "${HELM_CACHE_HOME}" "${HELM_DATA_HOME}"
+
+chart_dir="${work_dir}/charts"
+mkdir -p "${chart_dir}"
+helm pull "${CHART_OCI_MIRROR}" --version "${CHART_VERSION}" --destination "${chart_dir}" >/dev/null
+chart_archive="${chart_dir}/nginx-${CHART_VERSION}.tgz"
+pk3s_verify_file_sha256 "${chart_archive}" "${expected_chart_sha256}" "nginx chart archive"
 install_script="${ROOT_DIR}/addons/nginx/scripts/install.sh"
 grep -Fq "${expected_chart_sha256}" "${install_script}" || fail "nginx installer digest does not match MaterialsLock"
 
@@ -46,7 +54,8 @@ done
 digest_count="$(grep -Ec 'pinPolicy:[[:space:]]*exact-digest' "${LOCK_FILE}")"
 [[ "${digest_count}" -eq 4 ]] || fail "all nginx materials must use exact-digest pinning"
 
-helm template pk3s-nginx bitnami/nginx --version "${CHART_VERSION}" --namespace pk3s-nginx -f "${VALUES_FILE}" >"${rendered}"
+rendered="${work_dir}/rendered.yaml"
+helm template pk3s-nginx "${chart_archive}" --namespace pk3s-nginx -f "${VALUES_FILE}" >"${rendered}"
 if grep -Eq 'image:[[:space:]]+[^[:space:]]+:latest([[:space:]]|$)' "${rendered}"; then
   fail "rendered nginx manifests contain a floating latest image tag"
 fi
