@@ -11,7 +11,48 @@ spec:
     name: redis
     version: 28.3.1
     source: https://charts.bitnami.com/bitnami
-    pinPolicy: exact
+    pinPolicy: exact-digest
     required: true
     updateSource:
       type: helm-index
+    digest: sha256:4dacf5a4f67aca6d1565b0bb9fcd0343b22237efd14621cd47c0598f747c1092
+  - id: redis-image
+    type: container-image
+    name: docker.io/bitnamilegacy/redis
+    version: 8.2.1-debian-12-r0
+    source: docker.io/bitnamilegacy/redis
+    pinPolicy: exact-digest
+    required: true
+    digest: sha256:25bf63f3caf75af4628c0dfcf39859ad1ac8abe135be85e99699f9637b16dc28
+  - id: redis-sentinel-image
+    type: container-image
+    name: docker.io/bitnamilegacy/redis-sentinel
+    version: 8.2.1-debian-12-r0
+    source: docker.io/bitnamilegacy/redis-sentinel
+    pinPolicy: exact-digest
+    required: false
+    digest: sha256:0ca3ea1d2f823c2d9265e0d9e682dc435f219f8d3385aed75b5bb0f365f516a9
+  - id: redis-exporter-image
+    type: container-image
+    name: docker.io/bitnamilegacy/redis-exporter
+    version: 1.76.0-debian-12-r0
+    source: docker.io/bitnamilegacy/redis-exporter
+    pinPolicy: exact-digest
+    required: false
+    digest: sha256:d111b8a14d96f7edd67324776d6801b76023035d9390d03fbb13d1c21bda8b88
+  - id: kubectl-image
+    type: container-image
+    name: docker.io/bitnamilegacy/kubectl
+    version: 1.33.4-debian-12-r0
+    source: docker.io/bitnamilegacy/kubectl
+    pinPolicy: exact-digest
+    required: false
+    digest: sha256:ed0b31a0508da84ee655c5c6e01bd3897fc56ad6cf69debb27fa1893a06d2246
+  - id: os-shell-image
+    type: container-image
+    name: docker.io/bitnamilegacy/os-shell
+    version: 12-debian-12-r51
+    source: docker.io/bitnamilegacy/os-shell
+    pinPolicy: exact-digest
+    required: false
+    digest: sha256:77e65e9d633ec1463f8bea185763aa7ef91e5ddbe0b60beb1b0b5d4da58882b6

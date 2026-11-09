@@ -1,7 +1,27 @@
+global:
+  security:
+    allowInsecureImages: true
 fullnameOverride: postgres
+image:
+  registry: docker.io
+  repository: bitnamilegacy/postgresql
+  tag: 17.6.0-debian-12-r4
+  digest: sha256:926356130b77d5742d8ce605b258d35db9b62f2f8fd1601f9dbaef0c8a710a8d
 primary:
   persistence:
     enabled: false
+metrics:
+  image:
+    registry: docker.io
+    repository: bitnamilegacy/postgres-exporter
+    tag: 0.17.1-debian-12-r16
+    digest: sha256:6499edcf396cb75dd73d17f89e4c8c7ba9cab7a6e7abeb289009f9210e6762b0
+volumePermissions:
+  image:
+    registry: docker.io
+    repository: bitnamilegacy/os-shell
+    tag: 12-debian-12-r51
+    digest: sha256:77e65e9d633ec1463f8bea185763aa7ef91e5ddbe0b60beb1b0b5d4da58882b6
 auth:
   database: openship
   username: openship

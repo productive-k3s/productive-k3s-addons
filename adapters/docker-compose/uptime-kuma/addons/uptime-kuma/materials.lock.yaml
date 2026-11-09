@@ -11,14 +11,16 @@ spec:
     name: application
     version: 9.3.2
     source: https://stakater.github.io/stakater-charts
-    pinPolicy: exact
+    pinPolicy: exact-digest
     required: true
     updateSource:
       type: helm-index
+    digest: sha256:1c17fecf71c676868282a74462d82c7b252b244f2a2a3cf8f56b2825298f59c0
   - id: container-image
     type: container-image
     name: louislam/uptime-kuma
     version: '2'
     source: louislam/uptime-kuma
-    pinPolicy: exact-tag
+    pinPolicy: exact-digest
     required: true
+    digest: sha256:e88415a90dd2f7efecdbc18de0490aff292764a3ac471531bf1d0481725591bd

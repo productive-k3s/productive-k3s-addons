@@ -11,14 +11,15 @@ spec:
     name: application
     version: 9.3.2
     source: https://stakater.github.io/stakater-charts
-    pinPolicy: exact
+    pinPolicy: exact-digest
     required: true
     updateSource:
       type: helm-index
+    digest: sha256:1c17fecf71c676868282a74462d82c7b252b244f2a2a3cf8f56b2825298f59c0
   - id: container-image
     type: container-image
     name: ghcr.io/oblien/openship-api
-    version: sha256:b92087209e7a12b70a501b7d4a997ec572cccb14a975d483d34739e3b10cf2af
+    version: 0.6.5
     source: ghcr.io/oblien/openship-api
     pinPolicy: exact-digest
     required: true
