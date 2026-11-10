@@ -15,6 +15,9 @@ REMOTE_ADDONS_DIR="${LIVE_MATRIX_ADDONS_REMOTE_DIR:-${REMOTE_HOME}/productive-k3
 REMOTE_PREBUILT_ADDONS_DIR="${LIVE_MATRIX_PREBUILT_ADDONS_REMOTE_DIR:-${REMOTE_HOME}/productive-k3s-prebuilt-addons}"
 REMOTE_KUBECONFIG="${LIVE_MATRIX_REMOTE_KUBECONFIG:-${REMOTE_HOME}/.kube/config}"
 KEEP_VM="${KEEP_VM:-n}"
+API_STABLE_REQUIRED_SUCCESSES="${LIVE_MATRIX_API_STABLE_REQUIRED_SUCCESSES:-4}"
+API_STABLE_MAX_ATTEMPTS="${LIVE_MATRIX_API_STABLE_MAX_ATTEMPTS:-60}"
+API_STABLE_INTERVAL_SECONDS="${LIVE_MATRIX_API_STABLE_INTERVAL_SECONDS:-5}"
 TRANSFER_STAGING_DIR=""
 TEMP_CORE_DIR=""
 
@@ -157,6 +160,60 @@ prepare_remote_kubeconfig() {
   "
 }
 
+cluster_api_ready() {
+  multipass exec "${VM_NAME}" -- bash -lc "
+    sudo systemctl is-active --quiet k3s &&
+    sudo k3s kubectl get --raw=/readyz >/dev/null 2>&1 &&
+    sudo k3s kubectl wait --for=condition=Ready node --all --timeout=10s >/dev/null 2>&1
+  " >/dev/null 2>&1
+}
+
+wait_for_cluster_api_stable() {
+  local attempt=0
+  local consecutive_successes=0
+
+  log "Waiting for sustained k3s API readiness (${API_STABLE_REQUIRED_SUCCESSES} consecutive checks)"
+  while (( attempt < API_STABLE_MAX_ATTEMPTS )); do
+    attempt=$((attempt + 1))
+    if cluster_api_ready; then
+      consecutive_successes=$((consecutive_successes + 1))
+      if (( consecutive_successes >= API_STABLE_REQUIRED_SUCCESSES )); then
+        log "k3s API remained ready for ${consecutive_successes} consecutive checks"
+        return 0
+      fi
+    else
+      if (( consecutive_successes > 0 )); then
+        log "k3s API readiness was interrupted; restarting stability window"
+      fi
+      consecutive_successes=0
+    fi
+    sleep "${API_STABLE_INTERVAL_SECONDS}"
+  done
+
+  err "k3s API did not remain stable after ${API_STABLE_MAX_ATTEMPTS} checks"
+  return 1
+}
+
+collect_cluster_diagnostics() {
+  local diagnostics_dir="${REMOTE_ADDONS_DIR}/test-artifacts/cluster-diagnostics"
+  log "Collecting k3s diagnostics inside VM ${VM_NAME}"
+  multipass exec "${VM_NAME}" -- bash -lc "
+    mkdir -p '${diagnostics_dir}'
+    {
+      date -Is
+      printf '\n## systemctl status k3s\n'
+      sudo systemctl status k3s --no-pager || true
+      printf '\n## listening sockets\n'
+      sudo ss -ltnp || true
+      printf '\n## node state\n'
+      sudo k3s kubectl get nodes -o wide || true
+      printf '\n## pod state\n'
+      sudo k3s kubectl get pods -A -o wide || true
+    } >'${diagnostics_dir}/summary.log' 2>&1
+    sudo journalctl -u k3s --no-pager -n 2000 >'${diagnostics_dir}/k3s-journal.log' 2>&1 || true
+  " || true
+}
+
 run_live_matrix_inside_vm() {
   log "Running base stack live matrix inside VM ${VM_NAME}"
   multipass exec "${VM_NAME}" -- bash -lc "
@@ -183,11 +240,31 @@ copy_remote_artifacts_back() {
   fi
 }
 
-need_cmd multipass
-prepare_core_source
-stage_addons_repo
-launch_core_vm
-copy_addons_repo_to_vm
-prepare_remote_kubeconfig
-run_live_matrix_inside_vm
-copy_remote_artifacts_back
+main() {
+  need_cmd multipass
+  prepare_core_source
+  stage_addons_repo
+  launch_core_vm
+  copy_addons_repo_to_vm
+
+  if ! prepare_remote_kubeconfig; then
+    collect_cluster_diagnostics
+    copy_remote_artifacts_back
+    return 1
+  fi
+  if ! wait_for_cluster_api_stable; then
+    collect_cluster_diagnostics
+    copy_remote_artifacts_back
+    return 1
+  fi
+  if ! run_live_matrix_inside_vm; then
+    collect_cluster_diagnostics
+    copy_remote_artifacts_back
+    return 1
+  fi
+  copy_remote_artifacts_back
+}
+
+if [[ "${PK3S_ADDONS_LIVE_MATRIX_LIB_ONLY:-0}" != "1" ]]; then
+  main "$@"
+fi
