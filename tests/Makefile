@@ -3,7 +3,7 @@ SHELL := /bin/bash
 DEV_WRAPPER := ../scripts/productive-k3s-addons-dev.sh
 SCRIPTS_DIR := ../scripts
 
-.PHONY: test-all test-all-raw test-coverage test-static test-contract test-live test-matrix test-live-matrix test-live-matrix-ubuntu24 validate-layout test-runtime-contract test-longhorn-clean test-live-artifact-packaging test-package-layout test-package-stack test-tls-issuer-defaults test-registry-storage-class test-nginx-image-pinning test-controller-helm-pinning test-platform-helm-pinning test-checkstatus-local test-checkstatus-matrix test-checkstatus-live test-logs-clean test-clean-artifacts test-clean-vms test-clean-all
+.PHONY: test-all test-all-raw test-coverage test-static test-contract test-live test-matrix test-live-matrix test-live-matrix-ubuntu24 validate-layout test-runtime-contract test-longhorn-clean test-live-artifact-packaging test-live-matrix-harness test-package-layout test-package-stack test-tls-issuer-defaults test-registry-storage-class test-nginx-image-pinning test-controller-helm-pinning test-platform-helm-pinning test-checkstatus-local test-checkstatus-matrix test-checkstatus-live test-logs-clean test-clean-artifacts test-clean-vms test-clean-all
 
 validate-layout:
 	bash $(SCRIPTS_DIR)/validate-addon-package.sh ..
@@ -11,7 +11,7 @@ validate-layout:
 test-all:
 	bash $(DEV_WRAPPER) test-all
 
-test-all-raw: validate-layout test-package-stack test-tls-issuer-defaults test-registry-storage-class test-nginx-image-pinning test-controller-helm-pinning test-platform-helm-pinning test-longhorn-clean test-live-artifact-packaging test-static test-contract
+test-all-raw: validate-layout test-package-stack test-tls-issuer-defaults test-registry-storage-class test-nginx-image-pinning test-controller-helm-pinning test-platform-helm-pinning test-longhorn-clean test-live-artifact-packaging test-live-matrix-harness test-static test-contract
 
 test-coverage: validate-layout
 	bash ./test-contract-coverage.sh
@@ -42,6 +42,9 @@ test-longhorn-clean:
 
 test-live-artifact-packaging:
 	bash ./test-live-artifact-packaging.sh
+
+test-live-matrix-harness:
+	bash ./test-live-matrix-harness.sh
 
 test-package-layout:
 	PRODUCTIVE_K3S_CORE_REPO_DIR="$(PRODUCTIVE_K3S_CORE_REPO_DIR)" bash ./test-validate-addon-package.sh
