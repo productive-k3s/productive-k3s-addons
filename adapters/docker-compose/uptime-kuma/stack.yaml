@@ -2,7 +2,7 @@ apiVersion: stacks.productive-k3s.io/v1alpha1
 kind: Stack
 metadata:
   name: docker-compose-uptime-kuma
-  version: 0.1.0
+  version: 0.1.1
   sourceRevision: development
 spec:
   compatibility:

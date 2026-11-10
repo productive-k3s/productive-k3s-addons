@@ -2,7 +2,7 @@ apiVersion: addons.productive-k3s.io/v1
 kind: Stack
 metadata:
   name: cluster-security
-  version: 0.1.0
+  version: 0.1.1
   sourceRevision: development
   category: security
 spec:
