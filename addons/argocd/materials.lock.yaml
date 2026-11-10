@@ -1,6 +1,6 @@
 apiVersion: materials.productive-k3s.io/v1alpha1
 kind: MaterialsLock
-metadata: {owner: productive-k3s-addons, package: argocd, version: 0.1.0}
+metadata: {owner: productive-k3s-addons, package: argocd, version: 0.1.1}
 spec:
   materials:
     - {id: argocd-chart, type: helm-chart, name: argo-cd, version: 10.8.1, source: "https://argoproj.github.io/argo-helm", pinPolicy: exact-digest, digest: "sha256:7f71e5af5eac0eb73bd79faf6fca60a644740ee4773d17f5225786ead265b064", required: true}

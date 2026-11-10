@@ -1,6 +1,6 @@
 apiVersion: materials.productive-k3s.io/v1alpha1
 kind: MaterialsLock
-metadata: {owner: productive-k3s-addons, package: trivy-operator, version: 0.1.0}
+metadata: {owner: productive-k3s-addons, package: trivy-operator, version: 0.1.1}
 spec:
   materials:
     - {id: trivy-operator-chart, type: helm-chart, name: trivy-operator, version: 0.35.0, source: "https://aquasecurity.github.io/helm-charts", pinPolicy: exact-digest, digest: "sha256:c9bbd17603e808f7d9eac3d02a826a717164888bd4a045a4178efcfc2ee22a6b", required: true}

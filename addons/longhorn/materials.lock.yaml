@@ -1,6 +1,6 @@
 apiVersion: materials.productive-k3s.io/v1alpha1
 kind: MaterialsLock
-metadata: {owner: productive-k3s-addons, package: longhorn, version: 0.1.0}
+metadata: {owner: productive-k3s-addons, package: longhorn, version: 0.1.1}
 spec:
   materials:
     - {id: longhorn-chart, type: helm-chart, name: longhorn, version: v1.11.1, source: "https://charts.longhorn.io", pinPolicy: exact-digest, digest: "sha256:a93f60052e5e6e308d07e93fb3ecc0e4d336bbd323b725f0689df2e4d695245b", required: true}

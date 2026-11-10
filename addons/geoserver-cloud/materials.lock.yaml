@@ -1,6 +1,6 @@
 apiVersion: materials.productive-k3s.io/v1alpha1
 kind: MaterialsLock
-metadata: {owner: productive-k3s-addons, package: geoserver-cloud, version: 0.1.0}
+metadata: {owner: productive-k3s-addons, package: geoserver-cloud, version: 0.1.1}
 spec:
   materials:
     - {id: geoserver-cloud-chart, type: helm-chart, name: geoservercloud, version: 3.0.1, source: "https://camptocamp.github.io/helm-geoserver-cloud", pinPolicy: exact-digest, digest: "sha256:0ab9bdce03187e6010538145a56427335b00a538f16889dfd60c23f9e1822af2", required: true}
